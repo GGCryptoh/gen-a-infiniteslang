@@ -712,6 +712,84 @@ body {
   transform: translateY(0);
 }
 
+/* ── Hint System ───────────────────────────────────────────── */
+.hint-btn {
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.15s ease;
+}
+
+.hint-btn.glow {
+  animation: hint-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes hint-glow {
+  0%, 100% { filter: drop-shadow(0 0 0px transparent); }
+  50% { filter: drop-shadow(0 0 8px var(--accent-color)); }
+}
+
+.hint-popup {
+  position: fixed;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 250;
+  background: var(--modal-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 260px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  animation: hint-slide-in 0.3s ease-out;
+}
+
+@keyframes hint-slide-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.hint-content {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.hint-content .hint-word {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--tile-bg);
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.hint-content .hint-mystery {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-color);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.hint-dismiss {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.hint-dismiss:hover { opacity: 0.9; }
+
 /* ── Confetti ───────────────────────────────────────────────── */
 .confetti {
   position: fixed;
@@ -1237,6 +1315,7 @@ body {
   <header class="header">
     <div class="logo">🌱 INFINITE SLANG</div>
     <div class="controls">
+      <button id="hint-btn" class="icon-btn hint-btn" title="Hint" style="display:none;">💡</button>
       <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
       <button id="saves-btn" class="icon-btn" title="Saves">💾</button>
       <span id="progress-count" class="progress-count">0/82</span>
@@ -1288,6 +1367,12 @@ body {
   </footer>
 
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Hint Popup -->
+  <div class="hint-popup" id="hint-popup" style="display:none;">
+    <div class="hint-content" id="hint-content"></div>
+    <button class="hint-dismiss" id="hint-dismiss">Got it</button>
+  </div>
 
   <!-- Settings Modal -->
   <div class="modal-overlay" id="settings-modal">
@@ -2280,6 +2365,7 @@ function attemptMerge(wordA, wordB) {
       var msg = ROAST_MESSAGES[Math.floor(Math.random() * ROAST_MESSAGES.length)];
       showToast(msg);
     }
+    onMergeFail();
     return;
   }
 
@@ -2288,6 +2374,7 @@ function attemptMerge(wordA, wordB) {
     return;
   }
 
+  onMergeSuccess();
   discoverWord(result, wordA, wordB);
 }
 
@@ -2625,6 +2712,120 @@ function renderSavesList() {
   });
 }
 
+// ---------- HINT SYSTEM ----------
+
+var consecutiveFails = 0;
+var hintLevel = 0; // 0=none, 1=vague, 2=specific, 3=full reveal
+
+function getNextUndiscoveredCombo() {
+  // Find a combo the player hasn't discovered yet, prioritizing lower tiers
+  var discovered = new Set(gameState.discovered);
+  var candidates = [];
+
+  for (var i = 0; i < COMBOS.length; i++) {
+    var combo = COMBOS[i];
+    // Both ingredients must be discovered, result must NOT be
+    if (discovered.has(combo.a) && discovered.has(combo.b) && !discovered.has(combo.result)) {
+      candidates.push(combo);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  // Sort by tier (lower first = easier hints first)
+  candidates.sort(function(a, b) {
+    return WORDS[a.result].tier - WORDS[b.result].tier;
+  });
+
+  return candidates[0];
+}
+
+function updateHintButton() {
+  var hintBtn = document.getElementById('hint-btn');
+  if (!hintBtn) return;
+
+  if (consecutiveFails >= 5) {
+    hintBtn.style.display = '';
+    hintBtn.classList.add('glow');
+    // Determine hint level: 5 fails = level 1, 10 = level 2, 15+ = level 3
+    if (consecutiveFails >= 15) {
+      hintLevel = 3;
+    } else if (consecutiveFails >= 10) {
+      hintLevel = 2;
+    } else {
+      hintLevel = 1;
+    }
+  } else {
+    hintBtn.style.display = 'none';
+    hintBtn.classList.remove('glow');
+    hintLevel = 0;
+  }
+}
+
+function showHint() {
+  var combo = getNextUndiscoveredCombo();
+  if (!combo) {
+    showToast('No hints available — try combining what you have!');
+    return;
+  }
+
+  var wordA = WORDS[combo.a];
+  var wordB = WORDS[combo.b];
+  var result = WORDS[combo.result];
+  var content = '';
+
+  if (hintLevel === 1) {
+    // Vague: show one ingredient
+    content = 'Try combining something with <span class="hint-word">' +
+      wordA.emoji + ' ' + wordA.name + '</span> ...';
+  } else if (hintLevel === 2) {
+    // Specific: show both ingredients
+    content = 'Try: <span class="hint-word">' + wordA.emoji + ' ' + wordA.name +
+      '</span> + <span class="hint-word">' + wordB.emoji + ' ' + wordB.name +
+      '</span> = <span class="hint-mystery">???</span>';
+  } else {
+    // Full reveal
+    content = '<span class="hint-word">' + wordA.emoji + ' ' + wordA.name +
+      '</span> + <span class="hint-word">' + wordB.emoji + ' ' + wordB.name +
+      '</span> = <span class="hint-mystery">' + result.emoji + ' ' + result.name + '</span>';
+  }
+
+  var popup = document.getElementById('hint-popup');
+  var contentEl = document.getElementById('hint-content');
+  if (popup && contentEl) {
+    contentEl.innerHTML = content;
+    popup.style.display = '';
+  }
+}
+
+function hideHint() {
+  var popup = document.getElementById('hint-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+function onMergeFail() {
+  consecutiveFails++;
+  updateHintButton();
+}
+
+function onMergeSuccess() {
+  consecutiveFails = 0;
+  hintLevel = 0;
+  updateHintButton();
+  hideHint();
+}
+
+function initHints() {
+  var hintBtn = document.getElementById('hint-btn');
+  if (hintBtn) {
+    hintBtn.addEventListener('click', showHint);
+  }
+  var dismissBtn = document.getElementById('hint-dismiss');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', hideHint);
+  }
+}
+
 // ---------- MOBILE VIEW ----------
 
 var mobileSelectedA = null;
@@ -2850,6 +3051,7 @@ function init() {
   initModals();
   initInteraction();
   initSidebar();
+  initHints();
   initMobile();
 
   // Try to load most recent save
