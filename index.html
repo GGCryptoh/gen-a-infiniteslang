@@ -238,7 +238,6 @@ body {
 /* ── Board ──────────────────────────────────────────────────── */
 .board {
   position: relative;
-  width: 100vw;
   height: calc(100vh - 48px - 36px);
   height: calc(100dvh - 48px - 36px);
   margin-top: 48px;
@@ -869,6 +868,133 @@ body {
   background: var(--accent-color);
 }
 
+/* ── Sidebar (Discovery Panel) ─────────────────────────────── */
+.sidebar {
+  position: fixed;
+  right: 0;
+  top: 48px;
+  bottom: 36px;
+  width: 240px;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-left: 1px solid var(--header-border);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  transform: translateX(200px);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--header-border);
+  flex-shrink: 0;
+}
+
+.sidebar-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.6;
+  padding: 4px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  transform: rotate(180deg);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+.sidebar-tier {
+  margin-bottom: 12px;
+}
+
+.sidebar-tier-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.4;
+  padding: 4px 8px;
+}
+
+.sidebar-word {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  cursor: default;
+  transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-word:hover {
+  background: var(--tile-bg);
+}
+
+.sidebar-word .sidebar-emoji {
+  flex-shrink: 0;
+}
+
+.sidebar-word.new {
+  animation: sidebar-flash 1s ease-out;
+}
+
+@keyframes sidebar-flash {
+  0% { background: var(--accent-color); opacity: 0.8; }
+  100% { background: transparent; opacity: 1; }
+}
+
+/* Board shrinks when sidebar is open */
+.board {
+  width: calc(100vw - 240px);
+  transition: width 0.3s ease;
+}
+
+.board.sidebar-collapsed {
+  width: calc(100vw - 40px);
+}
+
 /* ── Responsive: small screens ──────────────────────────────── */
 @media (max-width: 480px) {
   .header {
@@ -893,6 +1019,10 @@ body {
     font-size: 13px;
     padding: 6px 12px;
   }
+
+  .board {
+    width: calc(100vw - 40px);
+  }
 }
   </style>
 </head>
@@ -902,7 +1032,7 @@ body {
     <div class="controls">
       <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
       <button id="saves-btn" class="icon-btn" title="Saves">💾</button>
-      <span id="progress-count" class="progress-count">0/63</span>
+      <span id="progress-count" class="progress-count">0/73</span>
     </div>
   </header>
 
@@ -913,9 +1043,19 @@ body {
     </div>
   </main>
 
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>Discoveries</h3>
+      <button class="sidebar-toggle" id="sidebar-toggle">◀</button>
+    </div>
+    <div class="sidebar-content" id="sidebar-content">
+      <!-- Dynamically populated -->
+    </div>
+  </aside>
+
   <footer class="progress-bar" id="progress-bar">
     <div class="progress-fill" id="progress-fill"></div>
-    <span class="progress-text" id="progress-text">0/63</span>
+    <span class="progress-text" id="progress-text">0/73</span>
     <span id="tier-breakdown" style="margin-left:12px;font-size:12px;opacity:0.7;font-variant-numeric:tabular-nums;">T1:0 T2:0 T3:0 T4:0 T5:0</span>
   </footer>
 
@@ -986,7 +1126,7 @@ var WORDS = {
   'brainrot':    { emoji: '\u{1F9E0}', tier: 1, name: 'Brainrot' },
   'aura':        { emoji: '\u2728',    tier: 1, name: 'Aura' },
 
-  // Tier 2 (20 words)
+  // Tier 2 (26 words)
   'alpha':              { emoji: '\u{1F981}', tier: 2, name: 'Alpha' },
   'catfish':            { emoji: '\u{1F41F}', tier: 2, name: 'Catfish' },
   'main-character':     { emoji: '\u{1F3AC}', tier: 2, name: 'Main Character' },
@@ -1007,8 +1147,14 @@ var WORDS = {
   'beige-flag':         { emoji: '\u{1F3F3}\uFE0F', tier: 2, name: 'Beige Flag' },
   'clout':              { emoji: '\u{1F451}', tier: 2, name: 'Clout' },
   'dub':                { emoji: '\u{1F3C6}', tier: 2, name: 'Dub' },
+  'ohio':               { emoji: '\u{1F33D}', tier: 2, name: 'Ohio' },
+  'trust-issues':       { emoji: '\u{1F925}', tier: 2, name: 'Trust Issues' },
+  'jawline':            { emoji: '\u{1F48E}', tier: 2, name: 'Jawline' },
+  'era':                { emoji: '\u{1F300}', tier: 2, name: 'Era' },
+  'andrew-tate':        { emoji: '\u{1F576}\uFE0F', tier: 2, name: 'Andrew Tate' },
+  'fact-check':         { emoji: '\u{1F4CB}', tier: 2, name: 'Fact Check' },
 
-  // Tier 3 (12 words)
+  // Tier 3 (16 words)
   'giga-chad':          { emoji: '\u{1F5FF}', tier: 3, name: 'Giga Chad' },
   'content-creator':    { emoji: '\u{1F4F8}', tier: 3, name: 'Content Creator' },
   'exposed':            { emoji: '\u{1F4E2}', tier: 3, name: 'Exposed' },
@@ -1021,6 +1167,10 @@ var WORDS = {
   'its-giving':         { emoji: '\u{1F481}', tier: 3, name: "It's Giving" },
   'gaslighting':        { emoji: '\u{1F525}\u{1FA9E}', tier: 3, name: 'Gaslighting' },
   'drip':               { emoji: '\u{1F4A7}', tier: 3, name: 'Drip' },
+  'tiktok':             { emoji: '\u{1F3B5}', tier: 3, name: 'TikTok' },
+  'ghosting':           { emoji: '\u{1F47B}', tier: 3, name: 'Ghosting' },
+  'comeback':           { emoji: '\u{1F504}', tier: 3, name: 'Comeback' },
+  'ratiod':             { emoji: '\u{1F4CA}', tier: 3, name: "Ratio'd" },
 
   // Tier 4 (6 words)
   'final-form':   { emoji: '\u2694\uFE0F', tier: 4, name: 'Final Form' },
@@ -1039,7 +1189,7 @@ var WORDS = {
 };
 
 var COMBOS = [
-  // Tier 2 combos (20)
+  // Tier 2 combos (26)
   { a: 'rizz',      b: 'sigma',    result: 'alpha' },
   { a: 'rizz',      b: 'cap',      result: 'catfish' },
   { a: 'rizz',      b: 'slay',     result: 'main-character' },
@@ -1060,8 +1210,14 @@ var COMBOS = [
   { a: 'ick',       b: 'delulu',   result: 'beige-flag' },
   { a: 'aura',      b: 'ratio',    result: 'clout' },
   { a: 'w',         b: 'w',        result: 'dub' },
+  { a: 'gyatt',     b: 'bussin',   result: 'ohio' },
+  { a: 'bet',       b: 'cap',      result: 'trust-issues' },
+  { a: 'mewing',    b: 'aura',     result: 'jawline' },
+  { a: 'slay',      b: 'vibe',     result: 'era' },
+  { a: 'sigma',     b: 'brainrot', result: 'andrew-tate' },
+  { a: 'ratio',     b: 'cap',      result: 'fact-check' },
 
-  // Tier 3 combos (12)
+  // Tier 3 combos (16)
   { a: 'alpha',              b: 'unspoken-rizz',      result: 'giga-chad' },
   { a: 'main-character',     b: 'chronically-online',  result: 'content-creator' },
   { a: 'cooked',             b: 'snake',               result: 'exposed' },
@@ -1074,6 +1230,10 @@ var COMBOS = [
   { a: 'beige-flag',         b: 'dub',                 result: 'its-giving' },
   { a: 'glitch',             b: 'red-flag',            result: 'gaslighting' },
   { a: 'aura-points',        b: 'finesse',             result: 'drip' },
+  { a: 'ohio',               b: 'chronically-online',  result: 'tiktok' },
+  { a: 'trust-issues',       b: 'situationship',       result: 'ghosting' },
+  { a: 'era',                b: 'glow-up',             result: 'comeback' },
+  { a: 'andrew-tate',        b: 'cancelled',           result: 'ratiod' },
 
   // Tier 4 combos (6)
   { a: 'giga-chad',       b: 'glow-up',       result: 'final-form' },
@@ -1132,7 +1292,8 @@ var gameState = {
 var settings = {
   theme: 'dark-gradient',
   shakeOnMiss: true,
-  roastMessages: true
+  roastMessages: true,
+  sidebarCollapsed: false
 };
 
 var currentSaveIndex = -1;
@@ -1161,16 +1322,16 @@ function newGame() {
 }
 
 function generateInitialPositions() {
-  var cols = 4;
-  var rows = 5;
-  var hSpacing = 160;
-  var vSpacing = 80;
+  var cols = 5;
+  var rows = 4;
+  var hSpacing = 200;
+  var vSpacing = 100;
   var vw = window.innerWidth;
   var vh = window.innerHeight;
   var totalW = (cols - 1) * hSpacing;
   var totalH = (rows - 1) * vSpacing;
   var startX = (vw - totalW) / 2;
-  var startY = (vh - totalH) / 2;
+  var startY = (vh - totalH) / 2 + 20;
 
   for (var i = 0; i < BASE_WORDS.length; i++) {
     var col = i % cols;
@@ -1210,6 +1371,11 @@ function loadSettings() {
     settings.theme = saved.theme || 'dark-gradient';
     settings.shakeOnMiss = saved.shakeOnMiss !== undefined ? saved.shakeOnMiss : true;
     settings.roastMessages = saved.roastMessages !== undefined ? saved.roastMessages : true;
+    settings.sidebarCollapsed = saved.sidebarCollapsed !== undefined ? saved.sidebarCollapsed : false;
+  }
+  // On mobile, default to collapsed
+  if (window.innerWidth <= 480 && !safeGetStorage('infiniteslang-settings')) {
+    settings.sidebarCollapsed = true;
   }
   applySettings();
 }
@@ -1229,6 +1395,24 @@ function applySettings() {
 
   var roastToggle = document.getElementById('roast-toggle');
   if (roastToggle) roastToggle.checked = settings.roastMessages;
+
+  // Apply sidebar collapsed state
+  var sidebar = document.getElementById('sidebar');
+  var board = document.getElementById('board');
+  if (sidebar) {
+    if (settings.sidebarCollapsed) {
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('collapsed');
+    }
+  }
+  if (board) {
+    if (settings.sidebarCollapsed) {
+      board.classList.add('sidebar-collapsed');
+    } else {
+      board.classList.remove('sidebar-collapsed');
+    }
+  }
 }
 
 function getSaves() {
@@ -1361,6 +1545,7 @@ function renderBoard() {
 
   renderConnections();
   updateProgress();
+  renderSidebar();
 }
 
 function deriveConnections() {
@@ -1449,6 +1634,88 @@ function updateProgress() {
       ' T3:' + tierCounts[3] +
       ' T4:' + tierCounts[4] +
       ' T5:' + tierCounts[5];
+  }
+}
+
+// ---------- SIDEBAR ----------
+
+var _lastSidebarDiscoveredCount = 0;
+
+function renderSidebar() {
+  var content = document.getElementById('sidebar-content');
+  if (!content) return;
+
+  content.innerHTML = '';
+
+  // Group discovered words by tier
+  var tiers = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+  gameState.discovered.forEach(function(id) {
+    var w = WORDS[id];
+    if (w) {
+      tiers[w.tier].push({ id: id, emoji: w.emoji, name: w.name });
+    }
+  });
+
+  var newCount = gameState.discovered.length;
+  var isNew = newCount > _lastSidebarDiscoveredCount;
+
+  for (var tier = 1; tier <= 5; tier++) {
+    if (tiers[tier].length === 0) continue;
+
+    var section = document.createElement('div');
+    section.className = 'sidebar-tier';
+
+    var label = document.createElement('div');
+    label.className = 'sidebar-tier-label';
+    label.textContent = 'TIER ' + tier;
+    section.appendChild(label);
+
+    tiers[tier].forEach(function(item) {
+      var wordEl = document.createElement('div');
+      wordEl.className = 'sidebar-word';
+
+      // Mark the newest word with .new class for flash animation
+      if (isNew && item.id === gameState.discovered[gameState.discovered.length - 1]) {
+        wordEl.classList.add('new');
+      }
+
+      var emojiSpan = document.createElement('span');
+      emojiSpan.className = 'sidebar-emoji';
+      emojiSpan.textContent = item.emoji;
+
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = item.name;
+
+      wordEl.appendChild(emojiSpan);
+      wordEl.appendChild(nameSpan);
+      section.appendChild(wordEl);
+    });
+
+    content.appendChild(section);
+  }
+
+  _lastSidebarDiscoveredCount = newCount;
+
+  // Scroll to bottom to show newest discovery
+  if (isNew) {
+    content.scrollTop = content.scrollHeight;
+  }
+}
+
+function initSidebar() {
+  var toggleBtn = document.getElementById('sidebar-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      settings.sidebarCollapsed = !settings.sidebarCollapsed;
+      applySettings();
+      saveSettings();
+    });
+  }
+
+  // On mobile, start collapsed
+  if (window.innerWidth <= 480) {
+    settings.sidebarCollapsed = true;
+    applySettings();
   }
 }
 
@@ -1780,7 +2047,7 @@ function discoverWord(resultId, parentA, parentB) {
   var posA = gameState.positions[parentA];
   var posB = gameState.positions[parentB];
 
-  // Midpoint + 40px down
+  // Midpoint + 40px down + random offset
   var spawnX, spawnY;
   if (parentA === parentB) {
     spawnX = posA.x + 40;
@@ -1788,6 +2055,31 @@ function discoverWord(resultId, parentA, parentB) {
   } else {
     spawnX = (posA.x + posB.x) / 2;
     spawnY = (posA.y + posB.y) / 2 + 40;
+  }
+
+  // Add random offset so multiple discoveries from the same parents don't stack
+  spawnX += (Math.random() - 0.5) * 60;  // +/- 30px
+  spawnY += (Math.random() - 0.5) * 40;  // +/- 20px
+
+  // Check for overlap with existing tiles (within 80px) and shift if needed
+  var maxShiftAttempts = 10;
+  for (var _s = 0; _s < maxShiftAttempts; _s++) {
+    var overlapping = false;
+    for (var _d = 0; _d < gameState.discovered.length; _d++) {
+      var existingPos = gameState.positions[gameState.discovered[_d]];
+      if (existingPos) {
+        var dx = Math.abs(spawnX - existingPos.x);
+        var dy = Math.abs(spawnY - existingPos.y);
+        if (dx < 80 && dy < 80) {
+          overlapping = true;
+          break;
+        }
+      }
+    }
+    if (!overlapping) break;
+    // Shift right and down to avoid overlap
+    spawnX += 90;
+    spawnY += 30;
   }
 
   // Clamp to viewport with 60px padding
@@ -1839,6 +2131,7 @@ function discoverWord(resultId, parentA, parentB) {
   // Render new connection lines (they will get .animated class since they are new)
   renderConnections();
   updateProgress();
+  renderSidebar();
   saveGame();
 }
 
@@ -2077,6 +2370,7 @@ function init() {
   loadSettings();
   initModals();
   initInteraction();
+  initSidebar();
 
   // Try to load most recent save
   var saves = getSaves();
