@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark-gradient">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infinite Slang</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <style>
+/* ============================================================
+   INFINITE SLANG — Complete CSS
+   A single-page merge game with 4 switchable themes
+   ============================================================ */
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Theme: Dark Gradient (default) ─────────────────────────── */
+[data-theme="dark-gradient"] {
+  --bg: #09090b;
+  --text: #ffffff;
+  --header-bg: rgba(9, 9, 11, 0.85);
+  --header-border: rgba(255, 255, 255, 0.08);
+  --tile-bg: #27272a;
+  --tile-border: rgba(255, 255, 255, 0.1);
+  --tile-text: #ffffff;
+  --tile-radius: 8px;
+  --tile-font: inherit;
+  --line-color: rgba(255, 255, 255, 0.15);
+  --accent-color: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #3b82f6, #a855f7);
+  --modal-bg: #18181b;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --toast-bg: #27272a;
+  --toast-color: #ffffff;
+  --select-bg: #27272a;
+  --select-text: #ffffff;
+  --select-border: rgba(255, 255, 255, 0.15);
+  --tier1-border: rgba(255, 255, 255, 0.25);
+  --tier1-glow: rgba(255, 255, 255, 0.08);
+  --tier2-border: #3b82f6;
+  --tier2-glow: rgba(59, 130, 246, 0.2);
+  --tier3-border: #a855f7;
+  --tier3-glow: rgba(168, 85, 247, 0.25);
+  --tier4-border: #eab308;
+  --tier4-glow: rgba(234, 179, 8, 0.3);
+  --tier5-border: #f43f5e;
+  --tier5-glow: rgba(244, 63, 94, 0.35);
+}
+
+/* ── Theme: Pastel Chaos ────────────────────────────────────── */
+[data-theme="pastel"] {
+  --bg: #fff5f5;
+  --text: #1a1a1a;
+  --header-bg: rgba(255, 245, 245, 0.9);
+  --header-border: rgba(0, 0, 0, 0.06);
+  --tile-bg: #ffffff;
+  --tile-border: rgba(0, 0, 0, 0.08);
+  --tile-text: #1a1a1a;
+  --tile-radius: 12px;
+  --tile-font: inherit;
+  --line-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #d946ef;
+  --accent-gradient: linear-gradient(135deg, #f472b6, #a78bfa);
+  --modal-bg: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --toast-bg: #ffffff;
+  --toast-color: #1a1a1a;
+  --select-bg: #ffffff;
+  --select-text: #1a1a1a;
+  --select-border: rgba(0, 0, 0, 0.12);
+  --tier1-border: #86efac;
+  --tier1-glow: rgba(134, 239, 172, 0.3);
+  --tier2-border: #c4b5fd;
+  --tier2-glow: rgba(196, 181, 253, 0.3);
+  --tier3-border: #fdba74;
+  --tier3-glow: rgba(253, 186, 116, 0.3);
+  --tier4-border: #fde047;
+  --tier4-glow: rgba(253, 224, 71, 0.3);
+  --tier5-border: #f472b6;
+  --tier5-glow: rgba(244, 114, 182, 0.35);
+}
+
+/* ── Theme: Terminal ────────────────────────────────────────── */
+[data-theme="terminal"] {
+  --bg: #000000;
+  --text: #00ff00;
+  --header-bg: rgba(0, 0, 0, 0.92);
+  --header-border: rgba(0, 255, 0, 0.15);
+  --tile-bg: rgba(0, 20, 0, 0.8);
+  --tile-border: #00ff00;
+  --tile-text: #00ff00;
+  --tile-radius: 2px;
+  --tile-font: 'Courier New', 'Fira Code', monospace;
+  --line-color: rgba(0, 255, 0, 0.2);
+  --accent-color: #00ff00;
+  --accent-gradient: linear-gradient(135deg, #00ff00, #00cc00);
+  --modal-bg: #0a0a0a;
+  --border-color: rgba(0, 255, 0, 0.2);
+  --toast-bg: #0a0a0a;
+  --toast-color: #00ff00;
+  --select-bg: #0a0a0a;
+  --select-text: #00ff00;
+  --select-border: rgba(0, 255, 0, 0.3);
+  --tier1-border: #00ff00;
+  --tier1-glow: rgba(0, 255, 0, 0.15);
+  --tier2-border: #00ff00;
+  --tier2-glow: rgba(0, 255, 0, 0.2);
+  --tier3-border: #00ff00;
+  --tier3-glow: rgba(0, 255, 0, 0.25);
+  --tier4-border: #ffb000;
+  --tier4-glow: rgba(255, 176, 0, 0.3);
+  --tier5-border: #ff0000;
+  --tier5-glow: rgba(255, 0, 0, 0.35);
+}
+
+/* ── Theme: Meme-core ───────────────────────────────────────── */
+[data-theme="memecore"] {
+  --bg: #ffe600;
+  --text: #000000;
+  --header-bg: rgba(255, 230, 0, 0.92);
+  --header-border: rgba(0, 0, 0, 0.15);
+  --tile-bg: #ffffff;
+  --tile-border: #000000;
+  --tile-text: #000000;
+  --tile-radius: 8px;
+  --tile-font: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  --line-color: rgba(0, 0, 0, 0.2);
+  --accent-color: #ff00ff;
+  --accent-gradient: linear-gradient(135deg, #ff00ff, #00ffff);
+  --modal-bg: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.2);
+  --toast-bg: #ffffff;
+  --toast-color: #000000;
+  --select-bg: #ffffff;
+  --select-text: #000000;
+  --select-border: rgba(0, 0, 0, 0.3);
+  --tier1-border: #000000;
+  --tier1-glow: rgba(0, 0, 0, 0.05);
+  --tier2-border: #0000ff;
+  --tier2-glow: rgba(0, 0, 255, 0.15);
+  --tier3-border: #ff00ff;
+  --tier3-glow: rgba(255, 0, 255, 0.2);
+  --tier4-border: #ff6600;
+  --tier4-glow: rgba(255, 102, 0, 0.25);
+  --tier5-border: #ff0000;
+  --tier5-glow: rgba(255, 0, 0, 0.3);
+}
+
+/* ── Body & Root ────────────────────────────────────────────── */
+html {
+  height: 100%;
+}
+
+body {
+  font-family: 'Geist Sans', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.progress-count {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+/* ── Board ──────────────────────────────────────────────────── */
+.board {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - 48px - 36px);
+  height: calc(100dvh - 48px - 36px);
+  margin-top: 48px;
+  overflow: hidden;
+}
+
+#board-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: none;
+}
+
+.connections-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Progress Bar (bottom) ──────────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: var(--header-bg);
+  border-top: 1px solid var(--header-border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--accent-color);
+  opacity: 0.15;
+  transition: width 0.5s ease-out;
+  pointer-events: none;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* ── Tiles ──────────────────────────────────────────────────── */
+.tile {
+  position: absolute;
+  padding: 8px 16px;
+  border-radius: var(--tile-radius);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--tile-font);
+  z-index: 10;
+  background: var(--tile-bg);
+  color: var(--tile-text);
+  border: 1px solid var(--tile-border);
+  touch-action: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tile:hover {
+  z-index: 11;
+}
+
+.tile.dragging {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  cursor: grabbing;
+  transition: none;
+}
+
+.tile.selected {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
+.tile.drop-target {
+  box-shadow: 0 0 20px var(--accent-color);
+}
+
+.tile.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+.tile.pop-in {
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Tile Tiers ─────────────────────────────────────────────── */
+
+/* Tier 1 */
+.tile[data-tier="1"] {
+  border-color: var(--tier1-border);
+  box-shadow: 0 1px 4px var(--tier1-glow);
+}
+
+.tile[data-tier="1"]:hover {
+  box-shadow: 0 1px 6px var(--tier1-glow), 0 0 8px var(--tier1-glow);
+}
+
+/* Tier 2 */
+.tile[data-tier="2"] {
+  border-color: var(--tier2-border);
+  box-shadow: 0 1px 6px var(--tier2-glow);
+}
+
+.tile[data-tier="2"]:hover {
+  box-shadow: 0 1px 8px var(--tier2-glow), 0 0 12px var(--tier2-glow);
+}
+
+/* Tier 3 */
+.tile[data-tier="3"] {
+  border-color: var(--tier3-border);
+  box-shadow: 0 2px 8px var(--tier3-glow);
+}
+
+.tile[data-tier="3"]:hover {
+  box-shadow: 0 2px 10px var(--tier3-glow), 0 0 16px var(--tier3-glow);
+}
+
+/* Tier 4 */
+.tile[data-tier="4"] {
+  border-color: var(--tier4-border);
+  box-shadow: 0 2px 10px var(--tier4-glow);
+}
+
+.tile[data-tier="4"]:hover {
+  box-shadow: 0 2px 12px var(--tier4-glow), 0 0 20px var(--tier4-glow);
+}
+
+/* Tier 5 */
+.tile[data-tier="5"] {
+  border-color: var(--tier5-border);
+  box-shadow: 0 2px 12px var(--tier5-glow), 0 0 24px var(--tier5-glow);
+}
+
+.tile[data-tier="5"]:hover {
+  box-shadow: 0 2px 14px var(--tier5-glow), 0 0 28px var(--tier5-glow);
+}
+
+/* ── Tier 5 rainbow animation per theme ─────────────────────── */
+[data-theme="dark-gradient"] .tile[data-tier="5"] {
+  animation: rainbow-border 3s linear infinite;
+}
+
+[data-theme="memecore"] .tile[data-tier="5"] {
+  animation: rainbow-border 3s linear infinite;
+}
+
+/* ── Pastel tier-specific tile backgrounds ──────────────────── */
+[data-theme="pastel"] .tile[data-tier="1"] {
+  background: #d1fae5;
+  border-color: #86efac;
+}
+
+[data-theme="pastel"] .tile[data-tier="2"] {
+  background: #e9d5ff;
+  border-color: #c4b5fd;
+}
+
+[data-theme="pastel"] .tile[data-tier="3"] {
+  background: #fed7aa;
+  border-color: #fdba74;
+}
+
+[data-theme="pastel"] .tile[data-tier="4"] {
+  background: #fef08a;
+  border-color: #fde047;
+}
+
+[data-theme="pastel"] .tile[data-tier="5"] {
+  background: linear-gradient(135deg, #fecdd3, #e9d5ff, #bfdbfe, #d1fae5);
+  border-color: #f472b6;
+  animation: rainbow-border 3s linear infinite;
+}
+
+/* ── Terminal tier-specific colors ──────────────────────────── */
+[data-theme="terminal"] .tile[data-tier="4"] {
+  border-color: #ffb000;
+  color: #ffb000;
+  box-shadow: 0 0 8px rgba(255, 176, 0, 0.3);
+}
+
+[data-theme="terminal"] .tile[data-tier="5"] {
+  border-color: #ff0000;
+  color: #ff0000;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+}
+
+/* ── Memecore tile styling ──────────────────────────────────── */
+[data-theme="memecore"] .tile {
+  border-width: 3px;
+  border-style: solid;
+  border-color: #000000;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+}
+
+/* ── SVG Lines ──────────────────────────────────────────────── */
+.connection-line {
+  stroke: var(--line-color);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.connection-line.animated {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: line-draw 0.6s ease-out forwards;
+}
+
+/* ── Modals ─────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal {
+  background: var(--modal-bg);
+  border-radius: 12px;
+  padding: 24px;
+  min-width: 320px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.modal h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ── Settings ───────────────────────────────────────────────── */
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.setting:last-child {
+  border-bottom: none;
+}
+
+.setting label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.setting select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--select-bg);
+  color: var(--select-text);
+  border: 1px solid var(--select-border);
+  border-radius: 6px;
+  padding: 6px 28px 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color 0.2s ease;
+}
+
+.setting select:focus {
+  border-color: var(--accent-color);
+}
+
+.setting input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  transition: opacity 0.15s ease;
+}
+
+.btn-sm:hover {
+  opacity: 0.85;
+}
+
+.modal-close {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* ── Saves List ─────────────────────────────────────────────── */
+.saves-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.save-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
+}
+
+.save-item:hover {
+  border-color: var(--accent-color);
+}
+
+.save-item.active {
+  border-color: var(--accent-color);
+}
+
+.save-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.save-name {
+  font-weight: 500;
+  font-size: 14px;
+  outline: none;
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+}
+
+.save-name:focus {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+  text-underline-offset: 2px;
+}
+
+.save-meta {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.save-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.empty-saves {
+  text-align: center;
+  opacity: 0.5;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* ── Save Buttons (FIX #5) ─────────────────────────────────── */
+.save-load-btn, .save-delete-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+}
+.save-load-btn:hover { background: var(--accent-color); color: #fff; }
+.save-delete-btn:hover { background: #ef4444; color: #fff; }
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--toast-bg);
+  color: var(--toast-color);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Confetti ───────────────────────────────────────────────── */
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fly 1s ease-out forwards;
+}
+
+/* FIX #2: confetti-particle class used by JS */
+.confetti-particle.confetti-animate {
+  animation: confetti-fly 1s ease-out forwards;
+}
+
+/* ── Screen Flash ───────────────────────────────────────────── */
+.screen-flash {
+  animation: flash 0.5s ease-out;
+}
+
+/* ── Scanline overlay for Terminal theme ─────────────────────── */
+[data-theme="terminal"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.03) 0px,
+    rgba(0, 255, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: scanline 0.1s linear infinite;
+}
+
+/* ── Terminal theme green glow on logo ───────────────────────── */
+[data-theme="terminal"] .logo {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: #00ff00;
+  background-clip: unset;
+  text-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+}
+
+/* ── Memecore theme logo ─────────────────────────────────────── */
+[data-theme="memecore"] .logo {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: #000000;
+  background-clip: unset;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+}
+
+/* ── Keyframe Animations ────────────────────────────────────── */
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes rainbow-border {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 4px;
+  }
+}
+
+@keyframes confetti-fly {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rotation));
+    opacity: 0;
+  }
+}
+
+@keyframes flash {
+  0% {
+    filter: brightness(2);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* ── Scrollbar styling ──────────────────────────────────────── */
+.modal::-webkit-scrollbar,
+.saves-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal::-webkit-scrollbar-track,
+.saves-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb,
+.saves-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover,
+.saves-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* ── Responsive: small screens ──────────────────────────────── */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .controls {
+    gap: 8px;
+  }
+
+  .icon-btn {
+    font-size: 18px;
+  }
+
+  .modal {
+    min-width: unset;
+    width: calc(100vw - 32px);
+    padding: 20px;
+  }
+
+  .tile {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🌱 INFINITE SLANG</div>
+    <div class="controls">
+      <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+      <button id="saves-btn" class="icon-btn" title="Saves">💾</button>
+      <span id="progress-count" class="progress-count">0/63</span>
+    </div>
+  </header>
+
+  <main class="board" id="board">
+    <div id="board-inner">
+      <svg class="connections-svg" id="connections-svg"></svg>
+      <!-- Tiles go here dynamically -->
+    </div>
+  </main>
+
+  <footer class="progress-bar" id="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+    <span class="progress-text" id="progress-text">0/63</span>
+    <span id="tier-breakdown" style="margin-left:12px;font-size:12px;opacity:0.7;font-variant-numeric:tabular-nums;">T1:0 T2:0 T3:0 T4:0 T5:0</span>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+      <h2>Settings</h2>
+      <div class="setting">
+        <label>Theme</label>
+        <select id="theme-select">
+          <option value="dark-gradient">Dark Gradient</option>
+          <option value="pastel">Pastel Chaos</option>
+          <option value="terminal">Terminal</option>
+          <option value="memecore">Meme-core</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label>Shake on miss</label>
+        <input type="checkbox" id="shake-toggle" checked>
+      </div>
+      <div class="setting">
+        <label>Roast messages</label>
+        <input type="checkbox" id="roast-toggle" checked>
+      </div>
+      <button class="btn modal-close" id="settings-close">Done</button>
+    </div>
+  </div>
+
+  <!-- Saves Modal -->
+  <div class="modal-overlay" id="saves-modal">
+    <div class="modal">
+      <h2>Game Saves</h2>
+      <div id="saves-list" class="saves-list"></div>
+      <button id="new-game-btn" class="btn" style="margin-top:12px;">+ New Game</button>
+      <button class="btn modal-close" id="saves-close">Done</button>
+    </div>
+  </div>
+
+  <script>
+// ============================================================
+// Infinite Slang — Complete Game JS
+// ============================================================
+
+// ---------- DATA LAYER ----------
+
+var WORDS = {
+  // Tier 1 (20 base words)
+  'rizz':        { emoji: '\u{1F60F}', tier: 1, name: 'Rizz' },
+  'skibidi':     { emoji: '\u{1F6BD}', tier: 1, name: 'Skibidi' },
+  'sigma':       { emoji: '\u{1F43A}', tier: 1, name: 'Sigma' },
+  'cap':         { emoji: '\u{1F9E2}', tier: 1, name: 'Cap' },
+  'bussin':      { emoji: '\u{1F525}', tier: 1, name: 'Bussin' },
+  'slay':        { emoji: '\u{1F485}', tier: 1, name: 'Slay' },
+  'sus':         { emoji: '\u{1F440}', tier: 1, name: 'Sus' },
+  'bet':         { emoji: '\u{1F91D}', tier: 1, name: 'Bet' },
+  'gyatt':       { emoji: '\u{1F633}', tier: 1, name: 'Gyatt' },
+  'mewing':      { emoji: '\u{1F92B}', tier: 1, name: 'Mewing' },
+  'w':           { emoji: '\u2705',    tier: 1, name: 'W' },
+  'l':           { emoji: '\u274C',    tier: 1, name: 'L' },
+  'fanum-tax':   { emoji: '\u{1F354}', tier: 1, name: 'Fanum Tax' },
+  'delulu':      { emoji: '\u{1F984}', tier: 1, name: 'Delulu' },
+  'vibe':        { emoji: '\u{1F30A}', tier: 1, name: 'Vibe' },
+  'npc':         { emoji: '\u{1F916}', tier: 1, name: 'NPC' },
+  'ick':         { emoji: '\u{1F922}', tier: 1, name: 'Ick' },
+  'ratio':       { emoji: '\u{1F4C9}', tier: 1, name: 'Ratio' },
+  'brainrot':    { emoji: '\u{1F9E0}', tier: 1, name: 'Brainrot' },
+  'aura':        { emoji: '\u2728',    tier: 1, name: 'Aura' },
+
+  // Tier 2 (20 words)
+  'alpha':              { emoji: '\u{1F981}', tier: 2, name: 'Alpha' },
+  'catfish':            { emoji: '\u{1F41F}', tier: 2, name: 'Catfish' },
+  'main-character':     { emoji: '\u{1F3AC}', tier: 2, name: 'Main Character' },
+  'bot':                { emoji: '\u{1F4BB}', tier: 2, name: 'Bot' },
+  'toilet':             { emoji: '\u{1FAA0}', tier: 2, name: 'Toilet' },
+  'immaculate':         { emoji: '\u{1F468}\u200D\u{1F373}', tier: 2, name: 'Immaculate' },
+  'snake':              { emoji: '\u{1F40D}', tier: 2, name: 'Snake' },
+  'red-flag':           { emoji: '\u{1F6A9}', tier: 2, name: 'Red Flag' },
+  'unspoken-rizz':      { emoji: '\u{1F910}', tier: 2, name: 'Unspoken Rizz' },
+  'cooked':             { emoji: '\u{1F373}', tier: 2, name: 'Cooked' },
+  'copium':             { emoji: '\u{1F48A}', tier: 2, name: 'Copium' },
+  'looksmaxxing':       { emoji: '\u{1F4AA}', tier: 2, name: 'Looksmaxxing' },
+  'aura-points':        { emoji: '\u{1F48E}', tier: 2, name: 'Aura Points' },
+  'ate':                { emoji: '\u{1F37D}\uFE0F', tier: 2, name: 'Ate' },
+  'finesse':            { emoji: '\u{1F3A9}', tier: 2, name: 'Finesse' },
+  'chronically-online': { emoji: '\u{1F4F1}', tier: 2, name: 'Chronically Online' },
+  'glitch':             { emoji: '\u26A1',    tier: 2, name: 'Glitch' },
+  'beige-flag':         { emoji: '\u{1F3F3}\uFE0F', tier: 2, name: 'Beige Flag' },
+  'clout':              { emoji: '\u{1F451}', tier: 2, name: 'Clout' },
+  'dub':                { emoji: '\u{1F3C6}', tier: 2, name: 'Dub' },
+
+  // Tier 3 (12 words)
+  'giga-chad':          { emoji: '\u{1F5FF}', tier: 3, name: 'Giga Chad' },
+  'content-creator':    { emoji: '\u{1F4F8}', tier: 3, name: 'Content Creator' },
+  'exposed':            { emoji: '\u{1F4E2}', tier: 3, name: 'Exposed' },
+  'glow-up':            { emoji: '\u{1F98B}', tier: 3, name: 'Glow Up' },
+  'situationship':      { emoji: '\u{1F494}', tier: 3, name: 'Situationship' },
+  'influencer':         { emoji: '\u{1F31F}', tier: 3, name: 'Influencer' },
+  'skibidi-toilet':     { emoji: '\u{1F6BD}\u2728', tier: 3, name: 'Skibidi Toilet' },
+  'no-notes':           { emoji: '\u{1F4AF}', tier: 3, name: 'No Notes' },
+  'ipad-kid':           { emoji: '\u{1F9D2}', tier: 3, name: 'iPad Kid' },
+  'its-giving':         { emoji: '\u{1F481}', tier: 3, name: "It's Giving" },
+  'gaslighting':        { emoji: '\u{1F525}\u{1FA9E}', tier: 3, name: 'Gaslighting' },
+  'drip':               { emoji: '\u{1F4A7}', tier: 3, name: 'Drip' },
+
+  // Tier 4 (6 words)
+  'final-form':   { emoji: '\u2694\uFE0F', tier: 4, name: 'Final Form' },
+  'mr-beast':     { emoji: '\u{1F981}\u{1F451}', tier: 4, name: 'MrBeast' },
+  'cancelled':    { emoji: '\u{1F6AB}', tier: 4, name: 'Cancelled' },
+  'toxic':        { emoji: '\u2620\uFE0F', tier: 4, name: 'Toxic' },
+  'gen-alpha':    { emoji: '\u{1F476}\u{1F4F1}', tier: 4, name: 'Gen Alpha' },
+  'iconic':       { emoji: '\u{1F3DB}\uFE0F', tier: 4, name: 'Iconic' },
+
+  // Tier 5 (5 words)
+  'goat':           { emoji: '\u{1F410}', tier: 5, name: 'GOAT' },
+  'redemption-arc': { emoji: '\u{1F305}', tier: 5, name: 'Redemption Arc' },
+  'brainrot-king':  { emoji: '\u{1F451}\u{1F9E0}', tier: 5, name: 'Brainrot King' },
+  'legend':         { emoji: '\u2B50',    tier: 5, name: 'Legend' },
+  'touch-grass':    { emoji: '\u{1F331}', tier: 5, name: 'Touch Grass' }
+};
+
+var COMBOS = [
+  // Tier 2 combos (20)
+  { a: 'rizz',      b: 'sigma',    result: 'alpha' },
+  { a: 'rizz',      b: 'cap',      result: 'catfish' },
+  { a: 'rizz',      b: 'slay',     result: 'main-character' },
+  { a: 'skibidi',   b: 'npc',      result: 'bot' },
+  { a: 'skibidi',   b: 'brainrot', result: 'toilet' },
+  { a: 'bussin',    b: 'vibe',     result: 'immaculate' },
+  { a: 'sus',       b: 'cap',      result: 'snake' },
+  { a: 'sus',       b: 'ick',      result: 'red-flag' },
+  { a: 'w',         b: 'rizz',     result: 'unspoken-rizz' },
+  { a: 'l',         b: 'ratio',    result: 'cooked' },
+  { a: 'l',         b: 'delulu',   result: 'copium' },
+  { a: 'mewing',    b: 'sigma',    result: 'looksmaxxing' },
+  { a: 'gyatt',     b: 'aura',     result: 'aura-points' },
+  { a: 'bet',       b: 'slay',     result: 'ate' },
+  { a: 'fanum-tax', b: 'w',        result: 'finesse' },
+  { a: 'vibe',      b: 'brainrot', result: 'chronically-online' },
+  { a: 'npc',       b: 'cap',      result: 'glitch' },
+  { a: 'ick',       b: 'delulu',   result: 'beige-flag' },
+  { a: 'aura',      b: 'ratio',    result: 'clout' },
+  { a: 'w',         b: 'w',        result: 'dub' },
+
+  // Tier 3 combos (12)
+  { a: 'alpha',              b: 'unspoken-rizz',      result: 'giga-chad' },
+  { a: 'main-character',     b: 'chronically-online',  result: 'content-creator' },
+  { a: 'cooked',             b: 'snake',               result: 'exposed' },
+  { a: 'looksmaxxing',       b: 'ate',                 result: 'glow-up' },
+  { a: 'red-flag',           b: 'copium',              result: 'situationship' },
+  { a: 'finesse',            b: 'clout',               result: 'influencer' },
+  { a: 'bot',                b: 'toilet',              result: 'skibidi-toilet' },
+  { a: 'immaculate',         b: 'ate',                 result: 'no-notes' },
+  { a: 'chronically-online', b: 'brainrot',            result: 'ipad-kid' },
+  { a: 'beige-flag',         b: 'dub',                 result: 'its-giving' },
+  { a: 'glitch',             b: 'red-flag',            result: 'gaslighting' },
+  { a: 'aura-points',        b: 'finesse',             result: 'drip' },
+
+  // Tier 4 combos (6)
+  { a: 'giga-chad',       b: 'glow-up',       result: 'final-form' },
+  { a: 'content-creator',  b: 'influencer',    result: 'mr-beast' },
+  { a: 'exposed',          b: 'gaslighting',   result: 'cancelled' },
+  { a: 'situationship',    b: 'its-giving',    result: 'toxic' },
+  { a: 'skibidi-toilet',   b: 'ipad-kid',      result: 'gen-alpha' },
+  { a: 'no-notes',         b: 'drip',          result: 'iconic' },
+
+  // Tier 5 combos (5)
+  { a: 'final-form',    b: 'iconic',          result: 'goat' },
+  { a: 'cancelled',     b: 'toxic',           result: 'redemption-arc' },
+  { a: 'gen-alpha',     b: 'mr-beast',        result: 'brainrot-king' },
+  { a: 'goat',          b: 'redemption-arc',  result: 'legend' },
+  { a: 'legend',        b: 'brainrot-king',   result: 'touch-grass' }
+];
+
+var ROAST_MESSAGES = [
+  'skill issue \u{1F480}',
+  "that ain't it fam",
+  'down bad combo',
+  'not even close bestie',
+  'L + ratio + no merge',
+  'bro thought \u{1F62D}',
+  "the math ain't mathing",
+  'that combo is mid'
+];
+
+// Build O(1) combo lookup map
+var COMBO_MAP = {};
+COMBOS.forEach(function(c) {
+  var key = [c.a, c.b].sort().join('|');
+  COMBO_MAP[key] = c.result;
+});
+
+function lookupCombo(wordA, wordB) {
+  var key = [wordA, wordB].sort().join('|');
+  return COMBO_MAP[key] || null;
+}
+
+var BASE_WORDS = Object.keys(WORDS).filter(function(id) {
+  return WORDS[id].tier === 1;
+});
+
+// ---------- STATE ----------
+
+var gameState = {
+  discovered: [],
+  positions: {},
+  discoveryOrder: [],
+  createdAt: null,
+  updatedAt: null,
+  name: ''
+};
+
+var settings = {
+  theme: 'dark-gradient',
+  shakeOnMiss: true,
+  roastMessages: true
+};
+
+var currentSaveIndex = -1;
+var boardOffset = { x: 0, y: 0 };
+
+// Track which connection keys have been rendered before (to avoid re-animating)
+var renderedConnectionKeys = {};
+
+// ---------- GAME INIT ----------
+
+function newGame() {
+  var now = new Date().toISOString();
+  gameState = {
+    discovered: BASE_WORDS.slice(),
+    positions: {},
+    discoveryOrder: BASE_WORDS.slice(),
+    createdAt: now,
+    updatedAt: now,
+    name: 'Save ' + new Date().toLocaleString()
+  };
+  boardOffset = { x: 0, y: 0 };
+  renderedConnectionKeys = {};
+  generateInitialPositions();
+  currentSaveIndex = -1;
+  saveGame();
+}
+
+function generateInitialPositions() {
+  var cols = 4;
+  var rows = 5;
+  var hSpacing = 160;
+  var vSpacing = 80;
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+  var totalW = (cols - 1) * hSpacing;
+  var totalH = (rows - 1) * vSpacing;
+  var startX = (vw - totalW) / 2;
+  var startY = (vh - totalH) / 2;
+
+  for (var i = 0; i < BASE_WORDS.length; i++) {
+    var col = i % cols;
+    var row = Math.floor(i / cols);
+    gameState.positions[BASE_WORDS[i]] = {
+      x: startX + col * hSpacing,
+      y: startY + row * vSpacing
+    };
+  }
+}
+
+// ---------- STORAGE HELPERS ----------
+
+function safeGetStorage(key) {
+  try {
+    var val = localStorage.getItem(key);
+    return val ? JSON.parse(val) : null;
+  } catch (e) {
+    showToast('Storage read failed');
+    return null;
+  }
+}
+
+function safeSetStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (e) {
+    showToast('Storage write failed (quota?)');
+    return false;
+  }
+}
+
+function loadSettings() {
+  var saved = safeGetStorage('infiniteslang-settings');
+  if (saved) {
+    settings.theme = saved.theme || 'dark-gradient';
+    settings.shakeOnMiss = saved.shakeOnMiss !== undefined ? saved.shakeOnMiss : true;
+    settings.roastMessages = saved.roastMessages !== undefined ? saved.roastMessages : true;
+  }
+  applySettings();
+}
+
+function saveSettings() {
+  safeSetStorage('infiniteslang-settings', settings);
+}
+
+function applySettings() {
+  document.documentElement.setAttribute('data-theme', settings.theme);
+
+  var themeSelect = document.getElementById('theme-select');
+  if (themeSelect) themeSelect.value = settings.theme;
+
+  var shakeToggle = document.getElementById('shake-toggle');
+  if (shakeToggle) shakeToggle.checked = settings.shakeOnMiss;
+
+  var roastToggle = document.getElementById('roast-toggle');
+  if (roastToggle) roastToggle.checked = settings.roastMessages;
+}
+
+function getSaves() {
+  return safeGetStorage('infiniteslang-saves') || [];
+}
+
+function saveGame() {
+  var saves = getSaves();
+  gameState.updatedAt = new Date().toISOString();
+
+  var saveData = {
+    discovered: gameState.discovered.slice(),
+    positions: JSON.parse(JSON.stringify(gameState.positions)),
+    discoveryOrder: gameState.discoveryOrder.slice(),
+    createdAt: gameState.createdAt,
+    updatedAt: gameState.updatedAt,
+    name: gameState.name
+  };
+
+  if (currentSaveIndex >= 0 && currentSaveIndex < saves.length) {
+    saves[currentSaveIndex] = saveData;
+  } else {
+    saves.push(saveData);
+    currentSaveIndex = saves.length - 1;
+  }
+
+  // Cap at 20 saves
+  while (saves.length > 20) {
+    // Remove the oldest save (index 0) unless it's the current one
+    var removeIndex = 0;
+    if (removeIndex === currentSaveIndex) {
+      // Current is the oldest — remove the next oldest
+      removeIndex = 1;
+    }
+    saves.splice(removeIndex, 1);
+    // Adjust currentSaveIndex if it was shifted
+    if (currentSaveIndex > removeIndex) {
+      currentSaveIndex--;
+    } else if (currentSaveIndex === removeIndex) {
+      // This shouldn't happen due to the guard above, but just in case
+      currentSaveIndex = Math.min(currentSaveIndex, saves.length - 1);
+    }
+  }
+
+  safeSetStorage('infiniteslang-saves', saves);
+}
+
+function loadGame(index) {
+  var saves = getSaves();
+  if (index < 0 || index >= saves.length) return;
+
+  var save = saves[index];
+  gameState = {
+    discovered: save.discovered.slice(),
+    positions: JSON.parse(JSON.stringify(save.positions)),
+    discoveryOrder: save.discoveryOrder.slice(),
+    createdAt: save.createdAt,
+    updatedAt: save.updatedAt,
+    name: save.name
+  };
+  currentSaveIndex = index;
+  boardOffset = { x: 0, y: 0 };
+  renderedConnectionKeys = {};
+  renderBoard();
+}
+
+function deleteGame(index) {
+  var saves = getSaves();
+  if (index < 0 || index >= saves.length) return;
+
+  saves.splice(index, 1);
+  safeSetStorage('infiniteslang-saves', saves);
+
+  if (currentSaveIndex === index) {
+    // Deleted the active save
+    if (saves.length === 0) {
+      currentSaveIndex = -1;
+    } else {
+      currentSaveIndex = Math.min(index, saves.length - 1);
+    }
+  } else if (currentSaveIndex > index) {
+    currentSaveIndex--;
+  }
+}
+
+// ---------- RENDERING ----------
+
+function createTileElement(wordId) {
+  var word = WORDS[wordId];
+  if (!word) return null;
+
+  var div = document.createElement('div');
+  div.className = 'tile';
+  div.setAttribute('data-word', wordId);
+  div.setAttribute('data-tier', word.tier);
+  div.textContent = word.emoji + ' ' + word.name;
+  div.style.position = 'absolute';
+
+  var pos = gameState.positions[wordId];
+  if (pos) {
+    div.style.left = pos.x + 'px';
+    div.style.top = pos.y + 'px';
+  }
+
+  return div;
+}
+
+function renderBoard() {
+  var board = document.getElementById('board');
+  if (!board) return;
+
+  // Clear existing tiles
+  var existingTiles = board.querySelectorAll('.tile');
+  existingTiles.forEach(function(t) { t.remove(); });
+
+  // Apply board offset
+  var boardInner = document.getElementById('board-inner');
+  if (boardInner) {
+    boardInner.style.transform = 'translate(' + boardOffset.x + 'px, ' + boardOffset.y + 'px)';
+  }
+
+  // Create tiles for all discovered words
+  gameState.discovered.forEach(function(wordId) {
+    var tile = createTileElement(wordId);
+    if (tile) {
+      var container = boardInner || board;
+      container.appendChild(tile);
+    }
+  });
+
+  renderConnections();
+  updateProgress();
+}
+
+function deriveConnections() {
+  var discoveredSet = {};
+  gameState.discovered.forEach(function(id) { discoveredSet[id] = true; });
+
+  var connections = [];
+  COMBOS.forEach(function(combo) {
+    if (discoveredSet[combo.a] && discoveredSet[combo.b] && discoveredSet[combo.result]) {
+      connections.push({ from: combo.a, to: combo.result });
+      if (combo.a !== combo.b) {
+        connections.push({ from: combo.b, to: combo.result });
+      }
+    }
+  });
+
+  return connections;
+}
+
+// FIX #7: SVG is inside board-inner, so line coordinates are in board-inner space.
+// No boardOffset adjustment needed.
+function renderConnections() {
+  var svg = document.getElementById('connections-svg');
+  if (!svg) return;
+
+  // Clear existing lines
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
+
+  var connections = deriveConnections();
+
+  connections.forEach(function(conn) {
+    var connKey = [conn.from, conn.to].sort().join('|');
+    var posA = gameState.positions[conn.from];
+    var posB = gameState.positions[conn.to];
+    if (!posA || !posB) return;
+
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', posA.x + 50);
+    line.setAttribute('y1', posA.y + 20);
+    line.setAttribute('x2', posB.x + 50);
+    line.setAttribute('y2', posB.y + 20);
+    line.classList.add('connection-line');
+
+    // Only animate NEW connections
+    if (!renderedConnectionKeys[connKey]) {
+      line.classList.add('animated');
+      renderedConnectionKeys[connKey] = true;
+    }
+
+    svg.appendChild(line);
+  });
+}
+
+function updateProgress() {
+  var totalWords = Object.keys(WORDS).length;
+  var discovered = gameState.discovered.length;
+
+  var countEl = document.getElementById('progress-count');
+  if (countEl) {
+    countEl.textContent = discovered + ' / ' + totalWords;
+  }
+
+  var textEl = document.getElementById('progress-text');
+  if (textEl) {
+    textEl.textContent = discovered + ' / ' + totalWords;
+  }
+
+  var fillEl = document.getElementById('progress-fill');
+  if (fillEl) {
+    fillEl.style.width = ((discovered / totalWords) * 100) + '%';
+  }
+
+  // Tier breakdown
+  var tierCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  gameState.discovered.forEach(function(id) {
+    var w = WORDS[id];
+    if (w) tierCounts[w.tier]++;
+  });
+
+  var breakdownEl = document.getElementById('tier-breakdown');
+  if (breakdownEl) {
+    breakdownEl.textContent = 'T1:' + tierCounts[1] +
+      ' T2:' + tierCounts[2] +
+      ' T3:' + tierCounts[3] +
+      ' T4:' + tierCounts[4] +
+      ' T5:' + tierCounts[5];
+  }
+}
+
+// ---------- TOAST ----------
+
+function showToast(message, duration) {
+  if (duration === undefined) duration = 2000;
+
+  var container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // Trigger reflow for animation
+  toast.offsetHeight;
+  toast.classList.add('show');
+
+  setTimeout(function() {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(function() {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }, duration);
+}
+
+// ---------- INTERACTION ----------
+
+var dragState = null;
+var selectedTile = null;
+var lastTapTime = 0;
+var lastTapTarget = null;
+var panState = null;
+
+function initInteraction() {
+  var board = document.getElementById('board');
+  if (!board) return;
+
+  board.addEventListener('pointerdown', onPointerDown);
+  board.addEventListener('pointermove', onPointerMove);
+  board.addEventListener('pointerup', onPointerUp);
+  board.addEventListener('pointercancel', onPointerUp);
+
+  // Prevent default touch behaviors on the board
+  board.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  board.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2 || dragState) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // Two-finger pan for mobile
+  board.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      panState = {
+        startX: midX,
+        startY: midY,
+        startOffsetX: boardOffset.x,
+        startOffsetY: boardOffset.y
+      };
+    }
+  });
+
+  board.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2 && panState) {
+      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      boardOffset.x = panState.startOffsetX + (midX - panState.startX);
+      boardOffset.y = panState.startOffsetY + (midY - panState.startY);
+      applyBoardTransform();
+      renderConnections();
+    }
+  });
+
+  board.addEventListener('touchend', function(e) {
+    if (e.touches.length < 2) {
+      panState = null;
+    }
+  });
+}
+
+function applyBoardTransform() {
+  var boardInner = document.getElementById('board-inner');
+  if (boardInner) {
+    boardInner.style.transform = 'translate(' + boardOffset.x + 'px, ' + boardOffset.y + 'px)';
+  }
+}
+
+function getTileFromEvent(e) {
+  var el = e.target;
+  while (el && !el.classList.contains('tile')) {
+    if (el.id === 'board' || el.id === 'board-inner') return null;
+    el = el.parentElement;
+  }
+  return el;
+}
+
+function onPointerDown(e) {
+  var tileEl = getTileFromEvent(e);
+
+  if (tileEl) {
+    var wordId = tileEl.getAttribute('data-word');
+    var now = Date.now();
+
+    // Double-tap / double-click detection
+    if (lastTapTarget === wordId && (now - lastTapTime) < 400) {
+      lastTapTime = 0;
+      lastTapTarget = null;
+      attemptMerge(wordId, wordId);
+      return;
+    }
+    lastTapTime = now;
+    lastTapTarget = wordId;
+
+    if (e.pointerType === 'touch') {
+      // Tap-tap mode for touch
+      if (selectedTile && selectedTile !== wordId) {
+        // Second tap on different tile — merge
+        var firstTile = selectedTile;
+        deselectTile();
+        attemptMerge(firstTile, wordId);
+      } else if (selectedTile === wordId) {
+        // Tap same tile again — deselect
+        deselectTile();
+      } else {
+        // First tap — select
+        selectTile(wordId, tileEl);
+      }
+    } else {
+      // Mouse/pen — drag mode
+      deselectTile();
+      var rect = tileEl.getBoundingClientRect();
+      dragState = {
+        wordId: wordId,
+        element: tileEl,
+        startX: gameState.positions[wordId].x,
+        startY: gameState.positions[wordId].y,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top
+      };
+      tileEl.setPointerCapture(e.pointerId);
+      tileEl.classList.add('dragging');
+      tileEl.style.zIndex = 1000;
+    }
+  } else {
+    // Clicked empty board space
+    if (selectedTile) {
+      deselectTile();
+    } else if (e.pointerType !== 'touch') {
+      // Begin pan (desktop only — mobile uses two-finger)
+      panState = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startOffsetX: boardOffset.x,
+        startOffsetY: boardOffset.y
+      };
+      e.target.setPointerCapture(e.pointerId);
+    }
+  }
+}
+
+// FIX #4 (drag coords): Since tiles and SVG are both in board-inner,
+// tile positions are in board-inner coordinate space.
+// Convert client coords to board-inner coords:
+//   board-inner origin in client space = board.getBoundingClientRect().left + boardOffset.x
+// So tile position = clientX - boardOriginClient - offsetX
+//   = clientX - (boardRect.left + boardOffset.x) - offsetX
+function onPointerMove(e) {
+  if (dragState) {
+    var board = document.getElementById('board');
+    var bRect = board.getBoundingClientRect();
+
+    // Position in board-inner coordinate space
+    var newX = e.clientX - bRect.left - boardOffset.x - dragState.offsetX;
+    var newY = e.clientY - bRect.top - boardOffset.y - dragState.offsetY;
+
+    dragState.element.style.left = newX + 'px';
+    dragState.element.style.top = newY + 'px';
+
+    gameState.positions[dragState.wordId] = { x: newX, y: newY };
+
+    // FIX #3: use drop-target class (matches CSS)
+    clearHighlights();
+    var target = getDropTarget(e.clientX, e.clientY, dragState.element);
+    if (target) {
+      target.classList.add('drop-target');
+    }
+
+    // Update connection lines during drag
+    renderConnections();
+
+  } else if (panState) {
+    var dx = e.clientX - panState.startX;
+    var dy = e.clientY - panState.startY;
+    boardOffset.x = panState.startOffsetX + dx;
+    boardOffset.y = panState.startOffsetY + dy;
+    applyBoardTransform();
+    renderConnections();
+  }
+}
+
+function onPointerUp(e) {
+  if (dragState) {
+    var dropTarget = getDropTarget(e.clientX, e.clientY, dragState.element);
+
+    dragState.element.classList.remove('dragging');
+    dragState.element.style.zIndex = '';
+    clearHighlights();
+
+    if (dropTarget) {
+      var targetWordId = dropTarget.getAttribute('data-word');
+
+      // Return tile to start position before merge
+      gameState.positions[dragState.wordId] = { x: dragState.startX, y: dragState.startY };
+      dragState.element.style.left = dragState.startX + 'px';
+      dragState.element.style.top = dragState.startY + 'px';
+
+      attemptMerge(dragState.wordId, targetWordId);
+    } else {
+      // Tile stays where dropped — position already updated during drag
+    }
+
+    saveGame();
+    dragState = null;
+
+  } else if (panState && e.pointerType !== 'touch') {
+    panState = null;
+  }
+}
+
+function getDropTarget(clientX, clientY, excludeEl) {
+  var boardInner = document.getElementById('board-inner') || document.getElementById('board');
+  var tiles = boardInner.querySelectorAll('.tile');
+  var hitTile = null;
+
+  for (var i = 0; i < tiles.length; i++) {
+    var tile = tiles[i];
+    if (tile === excludeEl) continue;
+    var rect = tile.getBoundingClientRect();
+    if (clientX >= rect.left && clientX <= rect.right &&
+        clientY >= rect.top && clientY <= rect.bottom) {
+      hitTile = tile;
+      break;
+    }
+  }
+
+  // If no other tile found, check if pointer is still over the dragged tile (self-merge)
+  if (!hitTile && excludeEl) {
+    var selfRect = excludeEl.getBoundingClientRect();
+    if (clientX >= selfRect.left && clientX <= selfRect.right &&
+        clientY >= selfRect.top && clientY <= selfRect.bottom) {
+      hitTile = excludeEl;
+    }
+  }
+
+  return hitTile;
+}
+
+function selectTile(wordId, element) {
+  selectedTile = wordId;
+  element.classList.add('selected');
+}
+
+function deselectTile() {
+  if (selectedTile) {
+    var el = document.querySelector('.tile[data-word="' + selectedTile + '"]');
+    if (el) el.classList.remove('selected');
+    selectedTile = null;
+  }
+}
+
+// FIX #3: use drop-target class (matches CSS)
+function clearHighlights() {
+  var highlighted = document.querySelectorAll('.drop-target');
+  highlighted.forEach(function(el) { el.classList.remove('drop-target'); });
+}
+
+// ---------- MERGE LOGIC ----------
+
+function attemptMerge(wordA, wordB) {
+  var result = lookupCombo(wordA, wordB);
+
+  if (!result) {
+    // Failed merge
+    if (settings.shakeOnMiss) {
+      shakeTile(wordA);
+      if (wordA !== wordB) shakeTile(wordB);
+    }
+    // FIX #6: Roast messages only 25% of the time
+    if (settings.roastMessages && Math.random() < 0.25) {
+      var msg = ROAST_MESSAGES[Math.floor(Math.random() * ROAST_MESSAGES.length)];
+      showToast(msg);
+    }
+    return;
+  }
+
+  if (gameState.discovered.indexOf(result) !== -1) {
+    showToast('Already discovered \u2728');
+    return;
+  }
+
+  discoverWord(result, wordA, wordB);
+}
+
+function shakeTile(wordId) {
+  var el = document.querySelector('.tile[data-word="' + wordId + '"]');
+  if (!el) return;
+  el.classList.add('shake');
+  setTimeout(function() {
+    el.classList.remove('shake');
+  }, 500);
+}
+
+function discoverWord(resultId, parentA, parentB) {
+  var posA = gameState.positions[parentA];
+  var posB = gameState.positions[parentB];
+
+  // Midpoint + 40px down
+  var spawnX, spawnY;
+  if (parentA === parentB) {
+    spawnX = posA.x + 40;
+    spawnY = posA.y + 40;
+  } else {
+    spawnX = (posA.x + posB.x) / 2;
+    spawnY = (posA.y + posB.y) / 2 + 40;
+  }
+
+  // Clamp to viewport with 60px padding
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+  var padding = 60;
+  spawnX = Math.max(padding, Math.min(spawnX, vw - padding - 100));
+  spawnY = Math.max(padding, Math.min(spawnY, vh - padding - 40));
+
+  // Add to state
+  gameState.discovered.push(resultId);
+  gameState.discoveryOrder.push(resultId);
+  gameState.positions[resultId] = { x: spawnX, y: spawnY };
+
+  // Create tile element with pop-in animation
+  var tile = createTileElement(resultId);
+  if (tile) {
+    tile.classList.add('pop-in');
+    tile.style.left = spawnX + 'px';
+    tile.style.top = spawnY + 'px';
+    var container = document.getElementById('board-inner') || document.getElementById('board');
+    container.appendChild(tile);
+  }
+
+  var tier = WORDS[resultId].tier;
+
+  // Tier 4+ effects
+  if (tier >= 4) {
+    // Convert board-inner coords to viewport coords for confetti
+    var board = document.getElementById('board');
+    var bRect = board.getBoundingClientRect();
+    var confettiX = spawnX + 50 + boardOffset.x + bRect.left;
+    var confettiY = spawnY + 20 + boardOffset.y + bRect.top;
+    spawnConfetti(confettiX, confettiY, tier);
+  }
+
+  // Tier 5 screen flash
+  if (tier === 5) {
+    document.body.classList.add('screen-flash');
+    setTimeout(function() {
+      document.body.classList.remove('screen-flash');
+    }, 600);
+  }
+
+  // Show discovery toast
+  var word = WORDS[resultId];
+  showToast(word.emoji + ' ' + word.name + ' discovered!', 2500);
+
+  // Render new connection lines (they will get .animated class since they are new)
+  renderConnections();
+  updateProgress();
+  saveGame();
+}
+
+// ---------- CONFETTI ----------
+
+function spawnConfetti(x, y, tier) {
+  var count = tier === 5 ? 30 : 15;
+  var colors;
+  if (tier === 5) {
+    colors = ['#ff0000', '#ff7700', '#ffff00', '#00ff00', '#0077ff', '#8800ff', '#ff00ff'];
+  } else {
+    colors = ['#ffd700', '#ffb700', '#fff200', '#e6ac00', '#cc9900'];
+  }
+
+  var container = document.getElementById('confetti-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'confetti-container';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.pointerEvents = 'none';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+  }
+
+  for (var i = 0; i < count; i++) {
+    var particle = document.createElement('div');
+    particle.className = 'confetti-particle';
+    particle.style.position = 'fixed';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.width = '8px';
+    particle.style.height = '8px';
+    particle.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.pointerEvents = 'none';
+
+    var angle = Math.random() * Math.PI * 2;
+    var distance = 80 + Math.random() * 120;
+    var tx = Math.cos(angle) * distance;
+    var ty = Math.sin(angle) * distance - 60;
+    var rotation = Math.random() * 720 - 360;
+
+    particle.style.setProperty('--tx', tx + 'px');
+    particle.style.setProperty('--ty', ty + 'px');
+    particle.style.setProperty('--rotation', rotation + 'deg');
+    particle.classList.add('confetti-animate');
+
+    container.appendChild(particle);
+
+    (function(p) {
+      setTimeout(function() {
+        if (p.parentNode) p.parentNode.removeChild(p);
+      }, 1000);
+    })(particle);
+  }
+}
+
+// ---------- MODALS ----------
+
+function initModals() {
+  // Settings button
+  var settingsBtn = document.getElementById('settings-btn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', function() {
+      openModal('settings-modal');
+    });
+  }
+
+  // Settings close
+  var settingsClose = document.getElementById('settings-close');
+  if (settingsClose) {
+    settingsClose.addEventListener('click', function() {
+      closeModal('settings-modal');
+    });
+  }
+
+  // Theme select
+  var themeSelect = document.getElementById('theme-select');
+  if (themeSelect) {
+    themeSelect.addEventListener('change', function() {
+      settings.theme = this.value;
+      applySettings();
+      saveSettings();
+    });
+  }
+
+  // Shake toggle
+  var shakeToggle = document.getElementById('shake-toggle');
+  if (shakeToggle) {
+    shakeToggle.addEventListener('change', function() {
+      settings.shakeOnMiss = this.checked;
+      saveSettings();
+    });
+  }
+
+  // Roast toggle
+  var roastToggle = document.getElementById('roast-toggle');
+  if (roastToggle) {
+    roastToggle.addEventListener('change', function() {
+      settings.roastMessages = this.checked;
+      saveSettings();
+    });
+  }
+
+  // Saves button
+  var savesBtn = document.getElementById('saves-btn');
+  if (savesBtn) {
+    savesBtn.addEventListener('click', function() {
+      renderSavesList();
+      openModal('saves-modal');
+    });
+  }
+
+  // Saves close
+  var savesClose = document.getElementById('saves-close');
+  if (savesClose) {
+    savesClose.addEventListener('click', function() {
+      closeModal('saves-modal');
+    });
+  }
+
+  // New Game button
+  var newGameBtn = document.getElementById('new-game-btn');
+  if (newGameBtn) {
+    newGameBtn.addEventListener('click', function() {
+      newGame();
+      renderBoard();
+      closeModal('saves-modal');
+    });
+  }
+
+  // Click overlay background to close
+  var modals = document.querySelectorAll('.modal-overlay');
+  modals.forEach(function(modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+      }
+    });
+  });
+}
+
+function openModal(id) {
+  var modal = document.getElementById(id);
+  if (modal) modal.classList.add('open');
+}
+
+function closeModal(id) {
+  var modal = document.getElementById(id);
+  if (modal) modal.classList.remove('open');
+}
+
+function renderSavesList() {
+  var container = document.getElementById('saves-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  var saves = getSaves();
+
+  if (saves.length === 0) {
+    container.innerHTML = '<p class="no-saves">No saves yet</p>';
+    return;
+  }
+
+  saves.forEach(function(save, index) {
+    var item = document.createElement('div');
+    item.className = 'save-item';
+    if (index === currentSaveIndex) {
+      item.classList.add('active');
+    }
+
+    var nameEl = document.createElement('span');
+    nameEl.className = 'save-name';
+    nameEl.contentEditable = true;
+    nameEl.textContent = save.name || ('Save ' + (index + 1));
+    nameEl.addEventListener('blur', function() {
+      var allSaves = getSaves();
+      if (allSaves[index]) {
+        allSaves[index].name = nameEl.textContent.trim() || ('Save ' + (index + 1));
+        safeSetStorage('infiniteslang-saves', allSaves);
+        if (index === currentSaveIndex) {
+          gameState.name = allSaves[index].name;
+        }
+      }
+    });
+    nameEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        nameEl.blur();
+      }
+    });
+
+    var info = document.createElement('span');
+    info.className = 'save-info';
+    info.textContent = save.discovered.length + '/' + Object.keys(WORDS).length +
+      ' \u2022 ' + new Date(save.updatedAt).toLocaleDateString();
+
+    var actions = document.createElement('div');
+    actions.className = 'save-actions';
+
+    var loadBtn = document.createElement('button');
+    loadBtn.className = 'save-load-btn';
+    loadBtn.textContent = 'Load';
+    loadBtn.addEventListener('click', function() {
+      loadGame(index);
+      closeModal('saves-modal');
+    });
+
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'save-delete-btn';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.addEventListener('click', function() {
+      if (confirm('Delete this save?')) {
+        deleteGame(index);
+        renderSavesList();
+      }
+    });
+
+    actions.appendChild(loadBtn);
+    actions.appendChild(deleteBtn);
+
+    item.appendChild(nameEl);
+    item.appendChild(info);
+    item.appendChild(actions);
+    container.appendChild(item);
+  });
+}
+
+// ---------- BOOT SEQUENCE ----------
+
+function init() {
+  loadSettings();
+  initModals();
+  initInteraction();
+
+  // Try to load most recent save
+  var saves = getSaves();
+  if (saves.length > 0) {
+    var mostRecent = 0;
+    var latestTime = 0;
+    saves.forEach(function(save, i) {
+      var t = new Date(save.updatedAt).getTime();
+      if (t > latestTime) {
+        latestTime = t;
+        mostRecent = i;
+      }
+    });
+    loadGame(mostRecent);
+  } else {
+    newGame();
+    renderBoard();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
