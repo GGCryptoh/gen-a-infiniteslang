@@ -1032,7 +1032,7 @@ body {
     <div class="controls">
       <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
       <button id="saves-btn" class="icon-btn" title="Saves">💾</button>
-      <span id="progress-count" class="progress-count">0/73</span>
+      <span id="progress-count" class="progress-count">0/82</span>
     </div>
   </header>
 
@@ -1055,7 +1055,7 @@ body {
 
   <footer class="progress-bar" id="progress-bar">
     <div class="progress-fill" id="progress-fill"></div>
-    <span class="progress-text" id="progress-text">0/73</span>
+    <span class="progress-text" id="progress-text">0/82</span>
     <span id="tier-breakdown" style="margin-left:12px;font-size:12px;opacity:0.7;font-variant-numeric:tabular-nums;">T1:0 T2:0 T3:0 T4:0 T5:0</span>
   </footer>
 
@@ -1172,7 +1172,20 @@ var WORDS = {
   'comeback':           { emoji: '\u{1F504}', tier: 3, name: 'Comeback' },
   'ratiod':             { emoji: '\u{1F4CA}', tier: 3, name: "Ratio'd" },
 
-  // Tier 4 (6 words)
+  // Tier 3 cross-tier (T2/T3 + T1 = new T3)
+  'pick-me':            { emoji: '\u{1F64B}', tier: 3, name: 'Pick Me' },
+  'body-count':         { emoji: '\u{1F480}\u{1F4CA}', tier: 3, name: 'Body Count' },
+  'demon-time':         { emoji: '\u{1F608}', tier: 3, name: 'Demon Time' },
+  'living-rent-free':   { emoji: '\u{1F3E0}', tier: 3, name: 'Living Rent Free' },
+  'understood-the-assignment': { emoji: '\u{1F4DD}', tier: 3, name: 'Understood the Assignment' },
+  'snatched':           { emoji: '\u{1F48E}\u{1F525}', tier: 3, name: 'Snatched' },
+
+  // Tier 4 cross-tier (T3 + T1 = new T4)
+  'delulu-is-the-solulu': { emoji: '\u{1F52E}', tier: 4, name: 'Delulu is the Solulu' },
+  'rent-free-king':       { emoji: '\u{1F3E0}\u{1F451}', tier: 4, name: 'Rent Free King' },
+  'main-character-syndrome': { emoji: '\u{1F3AC}\u{1F92F}', tier: 4, name: 'Main Character Syndrome' },
+
+  // Tier 4 (6 + 3 = 9 words)
   'final-form':   { emoji: '\u2694\uFE0F', tier: 4, name: 'Final Form' },
   'mr-beast':     { emoji: '\u{1F981}\u{1F451}', tier: 4, name: 'MrBeast' },
   'cancelled':    { emoji: '\u{1F6AB}', tier: 4, name: 'Cancelled' },
@@ -1217,7 +1230,7 @@ var COMBOS = [
   { a: 'sigma',     b: 'brainrot', result: 'andrew-tate' },
   { a: 'ratio',     b: 'cap',      result: 'fact-check' },
 
-  // Tier 3 combos (16)
+  // Tier 3 combos (16 + 6 cross-tier = 22)
   { a: 'alpha',              b: 'unspoken-rizz',      result: 'giga-chad' },
   { a: 'main-character',     b: 'chronically-online',  result: 'content-creator' },
   { a: 'cooked',             b: 'snake',               result: 'exposed' },
@@ -1235,7 +1248,20 @@ var COMBOS = [
   { a: 'era',                b: 'glow-up',             result: 'comeback' },
   { a: 'andrew-tate',        b: 'cancelled',           result: 'ratiod' },
 
-  // Tier 4 combos (6)
+  // Tier 3 cross-tier combos (T2/T3 + T1 = new T3)
+  { a: 'catfish',            b: 'slay',       result: 'pick-me' },
+  { a: 'cooked',             b: 'ratio',      result: 'body-count' },
+  { a: 'finesse',            b: 'skibidi',    result: 'demon-time' },
+  { a: 'influencer',         b: 'brainrot',   result: 'living-rent-free' },
+  { a: 'ate',                b: 'sigma',      result: 'understood-the-assignment' },
+  { a: 'drip',               b: 'slay',       result: 'snatched' },
+
+  // Tier 4 cross-tier combos (T3 + T1 = new T4)
+  { a: 'pick-me',            b: 'delulu',     result: 'delulu-is-the-solulu' },
+  { a: 'living-rent-free',   b: 'sigma',      result: 'rent-free-king' },
+  { a: 'content-creator',    b: 'delulu',     result: 'main-character-syndrome' },
+
+  // Tier 4 combos (6 + 3 cross-tier = 9)
   { a: 'giga-chad',       b: 'glow-up',       result: 'final-form' },
   { a: 'content-creator',  b: 'influencer',    result: 'mr-beast' },
   { a: 'exposed',          b: 'gaslighting',   result: 'cancelled' },
