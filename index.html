@@ -1024,6 +1024,213 @@ body {
     width: calc(100vw - 40px);
   }
 }
+
+/* ── Mobile View — hidden on desktop ─────────────────────────── */
+.mobile-view {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop elements */
+  .board { display: none !important; }
+  .sidebar { display: none !important; }
+
+  /* Show mobile view */
+  .mobile-view {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 48px;
+    bottom: 36px;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+  }
+
+  /* Tier tabs - horizontally scrollable row */
+  .mobile-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--header-border);
+    background: var(--header-bg);
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .mobile-tab.active {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+  }
+
+  /* Merge bar - shows selected words */
+  .mobile-merge-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--tile-bg);
+    border-bottom: 1px solid var(--header-border);
+    flex-shrink: 0;
+    min-height: 48px;
+  }
+
+  .merge-slot {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+    border: 1px dashed var(--border-color);
+    color: var(--text);
+    opacity: 0.5;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .merge-slot.filled {
+    border-style: solid;
+    border-color: var(--accent-color);
+    opacity: 1;
+    background: var(--header-bg);
+  }
+
+  .merge-plus {
+    font-size: 18px;
+    font-weight: 700;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+
+  .merge-go {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--accent-color);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    font-family: inherit;
+  }
+
+  .merge-go:not([disabled]) {
+    opacity: 1;
+  }
+
+  /* Word grid - scrollable area */
+  .mobile-grid {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    align-content: start;
+  }
+
+  .mobile-word {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--tile-bg);
+    color: var(--tile-text);
+    border: 1px solid var(--tile-border);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .mobile-word:active {
+    transform: scale(0.96);
+  }
+
+  .mobile-word.mobile-selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .mobile-word.undiscovered {
+    opacity: 0.15;
+    pointer-events: none;
+    border-style: dashed;
+  }
+
+  .mobile-word.pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Tier colors on mobile words */
+  .mobile-word[data-tier="2"] { border-color: var(--tier2-border); }
+  .mobile-word[data-tier="3"] { border-color: var(--tier3-border); }
+  .mobile-word[data-tier="4"] { border-color: var(--tier4-border); }
+  .mobile-word[data-tier="5"] { border-color: var(--tier5-border); animation: rainbow-border 3s linear infinite; }
+
+  /* Undiscovered words in tier tabs (not "All") show as question marks */
+  .mobile-word.undiscovered .mobile-word-text {
+    visibility: hidden;
+  }
+  .mobile-word.undiscovered::after {
+    content: '???';
+    position: absolute;
+    font-size: 14px;
+    opacity: 0.3;
+  }
+
+  /* Mobile-specific tier section headers (for "All" tab) */
+  .mobile-tier-header {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.35;
+    padding: 8px 4px 4px;
+    margin-top: 8px;
+  }
+  .mobile-tier-header:first-child {
+    margin-top: 0;
+  }
+
+  /* Hide progress bar tier breakdown text on mobile - too wide */
+  .progress-bar {
+    justify-content: center;
+  }
+  #tier-breakdown {
+    display: none;
+  }
+}
   </style>
 </head>
 <body>
@@ -1042,6 +1249,27 @@ body {
       <!-- Tiles go here dynamically -->
     </div>
   </main>
+
+  <!-- Mobile View -->
+  <div class="mobile-view" id="mobile-view">
+    <div class="mobile-tabs" id="mobile-tabs">
+      <button class="mobile-tab active" data-tier="all">All</button>
+      <button class="mobile-tab" data-tier="1">T1</button>
+      <button class="mobile-tab" data-tier="2">T2</button>
+      <button class="mobile-tab" data-tier="3">T3</button>
+      <button class="mobile-tab" data-tier="4">T4</button>
+      <button class="mobile-tab" data-tier="5">T5</button>
+    </div>
+    <div class="mobile-merge-bar" id="mobile-merge-bar">
+      <span class="merge-slot" id="merge-slot-a">Tap a word...</span>
+      <span class="merge-plus">+</span>
+      <span class="merge-slot" id="merge-slot-b">...</span>
+      <button class="merge-go" id="merge-go" disabled>Merge</button>
+    </div>
+    <div class="mobile-grid" id="mobile-grid">
+      <!-- Words rendered here as a grid -->
+    </div>
+  </div>
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -1572,6 +1800,9 @@ function renderBoard() {
   renderConnections();
   updateProgress();
   renderSidebar();
+  if (isMobileView()) {
+    renderMobileGrid();
+  }
 }
 
 function deriveConnections() {
@@ -2154,6 +2385,10 @@ function discoverWord(resultId, parentA, parentB) {
   var word = WORDS[resultId];
   showToast(word.emoji + ' ' + word.name + ' discovered!', 2500);
 
+  if (isMobileView()) {
+    renderMobileGrid();
+  }
+
   // Render new connection lines (they will get .animated class since they are new)
   renderConnections();
   updateProgress();
@@ -2390,6 +2625,224 @@ function renderSavesList() {
   });
 }
 
+// ---------- MOBILE VIEW ----------
+
+var mobileSelectedA = null;
+var mobileSelectedB = null;
+var currentMobileTab = 'all';
+
+function isMobileView() {
+  return window.innerWidth <= 768;
+}
+
+function initMobile() {
+  // Tab switching
+  var tabs = document.querySelectorAll('.mobile-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentMobileTab = tab.getAttribute('data-tier');
+      renderMobileGrid();
+    });
+  });
+
+  // Merge button
+  var mergeBtn = document.getElementById('merge-go');
+  if (mergeBtn) {
+    mergeBtn.addEventListener('click', function() {
+      if (mobileSelectedA && mobileSelectedB) {
+        attemptMerge(mobileSelectedA, mobileSelectedB);
+        clearMobileSelection();
+        renderMobileGrid();
+        renderSidebar();
+      }
+    });
+  }
+
+  // Make merge slots clearable
+  var slotA = document.getElementById('merge-slot-a');
+  if (slotA) {
+    slotA.addEventListener('click', function() {
+      if (mobileSelectedA) {
+        mobileSelectedA = null;
+        updateMergeBar();
+        document.querySelectorAll('.mobile-word.mobile-selected').forEach(function(el) {
+          el.classList.remove('mobile-selected');
+        });
+      }
+    });
+  }
+  var slotB = document.getElementById('merge-slot-b');
+  if (slotB) {
+    slotB.addEventListener('click', function() {
+      if (mobileSelectedB) {
+        mobileSelectedB = null;
+        updateMergeBar();
+        document.querySelectorAll('.mobile-word.mobile-selected').forEach(function(el) {
+          el.classList.remove('mobile-selected');
+        });
+      }
+    });
+  }
+}
+
+function clearMobileSelection() {
+  mobileSelectedA = null;
+  mobileSelectedB = null;
+  updateMergeBar();
+  document.querySelectorAll('.mobile-word.mobile-selected').forEach(function(el) {
+    el.classList.remove('mobile-selected');
+  });
+}
+
+function updateMergeBar() {
+  var slotA = document.getElementById('merge-slot-a');
+  var slotB = document.getElementById('merge-slot-b');
+  var mergeBtn = document.getElementById('merge-go');
+
+  if (slotA) {
+    if (mobileSelectedA) {
+      var wordA = WORDS[mobileSelectedA];
+      slotA.textContent = wordA.emoji + ' ' + wordA.name;
+      slotA.classList.add('filled');
+    } else {
+      slotA.textContent = 'Tap a word...';
+      slotA.classList.remove('filled');
+    }
+  }
+
+  if (slotB) {
+    if (mobileSelectedB) {
+      var wordB = WORDS[mobileSelectedB];
+      slotB.textContent = wordB.emoji + ' ' + wordB.name;
+      slotB.classList.add('filled');
+    } else {
+      slotB.textContent = '...';
+      slotB.classList.remove('filled');
+    }
+  }
+
+  if (mergeBtn) {
+    mergeBtn.disabled = !(mobileSelectedA && mobileSelectedB);
+  }
+}
+
+function onMobileWordTap(wordId) {
+  if (!mobileSelectedA) {
+    mobileSelectedA = wordId;
+  } else if (mobileSelectedA === wordId) {
+    // Tapped same word — either self-merge attempt or deselect
+    var selfResult = lookupCombo(wordId, wordId);
+    if (selfResult) {
+      mobileSelectedB = wordId;
+    } else {
+      mobileSelectedA = null; // deselect
+    }
+  } else if (!mobileSelectedB) {
+    mobileSelectedB = wordId;
+  } else {
+    // Both slots full — replace slot A with new selection, clear B
+    mobileSelectedA = wordId;
+    mobileSelectedB = null;
+  }
+
+  updateMergeBar();
+
+  // Update visual selection on grid
+  document.querySelectorAll('.mobile-word.mobile-selected').forEach(function(el) {
+    el.classList.remove('mobile-selected');
+  });
+  if (mobileSelectedA) {
+    var elA = document.querySelector('.mobile-word[data-word="' + mobileSelectedA + '"]');
+    if (elA) elA.classList.add('mobile-selected');
+  }
+  if (mobileSelectedB && mobileSelectedB !== mobileSelectedA) {
+    var elB = document.querySelector('.mobile-word[data-word="' + mobileSelectedB + '"]');
+    if (elB) elB.classList.add('mobile-selected');
+  }
+
+  // Auto-merge when both selected
+  if (mobileSelectedA && mobileSelectedB) {
+    setTimeout(function() {
+      attemptMerge(mobileSelectedA, mobileSelectedB);
+      clearMobileSelection();
+      renderMobileGrid();
+    }, 300);
+  }
+}
+
+function renderMobileGrid() {
+  var grid = document.getElementById('mobile-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  var discovered = new Set(gameState.discovered);
+
+  if (currentMobileTab === 'all') {
+    // Show all discovered words grouped by tier
+    for (var tier = 1; tier <= 5; tier++) {
+      var tierWords = gameState.discovered.filter(function(id) {
+        return WORDS[id] && WORDS[id].tier === tier;
+      });
+      if (tierWords.length === 0) continue;
+
+      var header = document.createElement('div');
+      header.className = 'mobile-tier-header';
+      header.textContent = 'TIER ' + tier + (tier === 5 ? ' \u2605 MYTHICAL' : tier === 4 ? ' \u2605 RARE' : '');
+      grid.appendChild(header);
+
+      tierWords.forEach(function(wordId) {
+        grid.appendChild(createMobileWord(wordId, true));
+      });
+    }
+  } else {
+    // Show specific tier - discovered ones tappable, undiscovered as ???
+    var tierNum = parseInt(currentMobileTab);
+    var allTierWords = Object.keys(WORDS).filter(function(id) {
+      return WORDS[id].tier === tierNum;
+    });
+
+    allTierWords.forEach(function(wordId) {
+      var isDiscovered = discovered.has(wordId);
+      grid.appendChild(createMobileWord(wordId, isDiscovered));
+    });
+  }
+}
+
+function createMobileWord(wordId, isDiscovered) {
+  var word = WORDS[wordId];
+  var el = document.createElement('div');
+  el.className = 'mobile-word';
+  el.setAttribute('data-word', wordId);
+  el.setAttribute('data-tier', word.tier);
+
+  if (isDiscovered) {
+    var textSpan = document.createElement('span');
+    textSpan.className = 'mobile-word-text';
+    textSpan.textContent = word.emoji + ' ' + word.name;
+    el.appendChild(textSpan);
+
+    el.addEventListener('click', function() {
+      onMobileWordTap(wordId);
+    });
+
+    // Highlight if selected
+    if (mobileSelectedA === wordId || mobileSelectedB === wordId) {
+      el.classList.add('mobile-selected');
+    }
+  } else {
+    el.classList.add('undiscovered');
+    el.style.position = 'relative';
+    var textSpan = document.createElement('span');
+    textSpan.className = 'mobile-word-text';
+    textSpan.textContent = word.emoji + ' ' + word.name;
+    el.appendChild(textSpan);
+  }
+
+  return el;
+}
+
 // ---------- BOOT SEQUENCE ----------
 
 function init() {
@@ -2397,6 +2850,7 @@ function init() {
   initModals();
   initInteraction();
   initSidebar();
+  initMobile();
 
   // Try to load most recent save
   var saves = getSaves();
@@ -2416,6 +2870,12 @@ function init() {
     renderBoard();
   }
 }
+
+window.addEventListener('resize', function() {
+  if (isMobileView()) {
+    renderMobileGrid();
+  }
+});
 
 document.addEventListener('DOMContentLoaded', init);
   </script>
