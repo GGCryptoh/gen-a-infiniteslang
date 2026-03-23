@@ -2479,14 +2479,13 @@ function initInteraction() {
 
   // Unified click handler for tiles on desktop
   board.addEventListener('click', function(e) {
-    if (isMobileView()) return; // mobile has its own handler
+    if (isMobileView()) return;
+    if (settings.view === 'canvas') return; // canvas mode uses pointerdown/up
 
-    // Ignore clicks on the merge bar area
     if (e.target.closest('.desktop-merge-bar')) return;
 
     var tileEl = e.target.closest('.tile');
     if (!tileEl) {
-      // Clicked empty space - deselect
       clearDesktopSelection();
       return;
     }
@@ -3343,7 +3342,13 @@ function initCanvasDrag() {
   board.addEventListener('pointerdown', function(e) {
     if (settings.view !== 'canvas') return;
     var tile = e.target.closest('.tile');
-    if (!tile) return;
+    if (!tile) {
+      // Clicked empty canvas space — deselect
+      if (!e.target.closest('.desktop-merge-bar')) {
+        clearDesktopSelection();
+      }
+      return;
+    }
     if (e.pointerType === 'touch') return; // mobile uses tap-tap
 
     var wordId = tile.getAttribute('data-word');
