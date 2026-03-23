@@ -241,26 +241,28 @@ body {
   height: calc(100vh - 48px - 36px);
   height: calc(100dvh - 48px - 36px);
   margin-top: 48px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: calc(100vw - 240px);
+  transition: width 0.3s ease;
+}
+
+.board.sidebar-collapsed {
+  width: calc(100vw - 40px);
 }
 
 #board-inner {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transition: none;
+  padding: 20px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: start;
+  min-height: 100%;
 }
 
 .connections-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 
 /* ── Progress Bar (bottom) ──────────────────────────────────── */
@@ -303,10 +305,10 @@ body {
 
 /* ── Tiles ──────────────────────────────────────────────────── */
 .tile {
-  position: absolute;
+  position: relative;
   padding: 8px 16px;
   border-radius: var(--tile-radius);
-  cursor: grab;
+  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   white-space: nowrap;
@@ -317,25 +319,21 @@ body {
   background: var(--tile-bg);
   color: var(--tile-text);
   border: 1px solid var(--tile-border);
-  touch-action: none;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .tile:hover {
   z-index: 11;
 }
 
-.tile.dragging {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  cursor: grabbing;
-  transition: none;
-}
-
 .tile.selected {
   outline: 2px solid var(--accent-color);
-  outline-offset: 3px;
+  outline-offset: 2px;
+  transform: scale(1.05);
+}
+
+.tile:active {
+  transform: scale(0.96);
 }
 
 .tile.drop-target {
@@ -459,7 +457,7 @@ body {
   font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
 }
 
-/* ── SVG Lines ──────────────────────────────────────────────── */
+/* ── SVG Lines (hidden in flow layout) ─────────────────────── */
 .connection-line {
   stroke: var(--line-color);
   stroke-width: 1;
@@ -468,7 +466,6 @@ body {
   transition: opacity 0.2s ease;
 }
 
-/* Highlight lines connected to hovered tile */
 .connection-line.highlight {
   opacity: 0.6;
   stroke-width: 2;
@@ -479,6 +476,103 @@ body {
   stroke-dashoffset: 1000;
   animation: line-draw 0.6s ease-out forwards;
 }
+
+/* ── Tier Separators ───────────────────────────────────────── */
+.tier-separator {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.3;
+  padding: 12px 0 4px;
+  flex-basis: 100%;
+}
+
+.tier-separator:first-child {
+  padding-top: 0;
+}
+
+/* ── Desktop Merge Bar ─────────────────────────────────────── */
+.desktop-merge-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: var(--tile-bg);
+  border-bottom: 1px solid var(--header-border);
+  border-radius: 0;
+  flex-shrink: 0;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.desktop-merge-bar .merge-slot {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+  border: 1px dashed var(--border-color);
+  color: var(--text);
+  opacity: 0.5;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.desktop-merge-bar .merge-slot.filled {
+  border-style: solid;
+  border-color: var(--accent-color);
+  opacity: 1;
+  background: var(--header-bg);
+}
+
+.desktop-merge-bar .merge-plus {
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.desktop-merge-bar .merge-go {
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+  font-family: inherit;
+}
+
+.desktop-merge-bar .merge-go:not([disabled]) {
+  opacity: 1;
+}
+
+.merge-clear {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.6;
+  font-family: inherit;
+}
+.merge-clear:hover { opacity: 1; border-color: var(--accent-color); }
 
 /* ── Modals ─────────────────────────────────────────────────── */
 .modal-overlay {
@@ -934,23 +1028,27 @@ body {
 
 /* ── Scrollbar styling ──────────────────────────────────────── */
 .modal::-webkit-scrollbar,
-.saves-list::-webkit-scrollbar {
+.saves-list::-webkit-scrollbar,
+.board::-webkit-scrollbar {
   width: 6px;
 }
 
 .modal::-webkit-scrollbar-track,
-.saves-list::-webkit-scrollbar-track {
+.saves-list::-webkit-scrollbar-track,
+.board::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .modal::-webkit-scrollbar-thumb,
-.saves-list::-webkit-scrollbar-thumb {
+.saves-list::-webkit-scrollbar-thumb,
+.board::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 3px;
 }
 
 .modal::-webkit-scrollbar-thumb:hover,
-.saves-list::-webkit-scrollbar-thumb:hover {
+.saves-list::-webkit-scrollbar-thumb:hover,
+.board::-webkit-scrollbar-thumb:hover {
   background: var(--accent-color);
 }
 
@@ -1071,15 +1169,7 @@ body {
   100% { background: transparent; opacity: 1; }
 }
 
-/* Board shrinks when sidebar is open */
-.board {
-  width: calc(100vw - 240px);
-  transition: width 0.3s ease;
-}
-
-.board.sidebar-collapsed {
-  width: calc(100vw - 40px);
-}
+/* Board width is now set in the main .board block above */
 
 /* ── Responsive: small screens ──────────────────────────────── */
 @media (max-width: 480px) {
@@ -1120,6 +1210,7 @@ body {
   /* Hide desktop elements */
   .board { display: none !important; }
   .sidebar { display: none !important; }
+  .desktop-merge-bar { display: none !important; }
 
   /* Show mobile view */
   .mobile-view {
@@ -1331,6 +1422,13 @@ body {
   </header>
 
   <main class="board" id="board">
+    <div class="desktop-merge-bar" id="desktop-merge-bar">
+      <span class="merge-slot" id="desktop-slot-a">Click a word...</span>
+      <span class="merge-plus">+</span>
+      <span class="merge-slot" id="desktop-slot-b">...</span>
+      <button class="merge-go" id="desktop-merge-go" disabled>Merge!</button>
+      <button class="merge-clear" id="desktop-merge-clear" style="display:none;">&#10005;</button>
+    </div>
     <div id="board-inner">
       <svg class="connections-svg" id="connections-svg"></svg>
       <!-- Tiles go here dynamically -->
@@ -1644,10 +1742,6 @@ var settings = {
 };
 
 var currentSaveIndex = -1;
-var boardOffset = { x: 0, y: 0 };
-
-// Track which connection keys have been rendered before (to avoid re-animating)
-var renderedConnectionKeys = {};
 
 // ---------- GAME INIT ----------
 
@@ -1661,9 +1755,6 @@ function newGame() {
     updatedAt: now,
     name: 'Save ' + new Date().toLocaleString()
   };
-  boardOffset = { x: 0, y: 0 };
-  renderedConnectionKeys = {};
-  generateInitialPositions();
   currentSaveIndex = -1;
   saveGame();
 }
@@ -1675,84 +1766,7 @@ function estimateTileWidth(wordId) {
   return 20 + word.name.length * 8 + 32;
 }
 
-function generateInitialPositions() {
-  var vw = window.innerWidth;
-  var sidebarWidth = vw > 768 ? 240 : 0;
-  var usableWidth = vw - sidebarWidth - 60; // 30px padding each side
-  var hGap = 16;
-  var vGap = 16;
-  var tileH = 38;
-  var startX = 30;
-  var startY = 20;
-  var x = startX;
-  var y = startY;
-
-  for (var i = 0; i < BASE_WORDS.length; i++) {
-    var tileW = estimateTileWidth(BASE_WORDS[i]);
-
-    if (x + tileW > usableWidth + startX && x > startX) {
-      x = startX;
-      y += tileH + vGap;
-    }
-
-    gameState.positions[BASE_WORDS[i]] = { x: x, y: y };
-    x += tileW + hGap;
-  }
-}
-
-// Find open space for a new tile, avoiding all existing tiles
-function findOpenPosition(preferX, preferY, tileWidth) {
-  var tileH = 38;
-  var padding = 12;
-  var vw = window.innerWidth;
-  var sidebarWidth = vw > 768 ? 240 : 0;
-  var maxX = vw - sidebarWidth - tileWidth - 30;
-  var maxY = window.innerHeight - 120; // leave room for progress bar
-
-  // Try preferred position first
-  var candidates = [{ x: preferX, y: preferY }];
-
-  // Generate a spiral of candidate positions around the preferred spot
-  for (var ring = 1; ring <= 8; ring++) {
-    var step = ring * 60;
-    for (var angle = 0; angle < 360; angle += 45) {
-      var rad = angle * Math.PI / 180;
-      candidates.push({
-        x: preferX + Math.cos(rad) * step,
-        y: preferY + Math.sin(rad) * step
-      });
-    }
-  }
-
-  for (var c = 0; c < candidates.length; c++) {
-    var cx = Math.max(30, Math.min(candidates[c].x, maxX));
-    var cy = Math.max(20, Math.min(candidates[c].y, maxY));
-    var clear = true;
-
-    for (var d = 0; d < gameState.discovered.length; d++) {
-      var existId = gameState.discovered[d];
-      var ePos = gameState.positions[existId];
-      if (!ePos) continue;
-      var eW = estimateTileWidth(existId);
-      // Check bounding box overlap
-      if (cx < ePos.x + eW + padding && cx + tileWidth + padding > ePos.x &&
-          cy < ePos.y + tileH + padding && cy + tileH + padding > ePos.y) {
-        clear = false;
-        break;
-      }
-    }
-
-    if (clear) return { x: cx, y: cy };
-  }
-
-  // Fallback: place below all existing tiles
-  var maxBottom = 100;
-  for (var d2 = 0; d2 < gameState.discovered.length; d2++) {
-    var p = gameState.positions[gameState.discovered[d2]];
-    if (p && p.y + tileH > maxBottom) maxBottom = p.y + tileH;
-  }
-  return { x: 30 + Math.random() * 200, y: maxBottom + 30 };
-}
+// generateInitialPositions and findOpenPosition removed — flow layout handles tile placement
 
 // ---------- STORAGE HELPERS ----------
 
@@ -1878,15 +1892,13 @@ function loadGame(index) {
   var save = saves[index];
   gameState = {
     discovered: save.discovered.slice(),
-    positions: JSON.parse(JSON.stringify(save.positions)),
-    discoveryOrder: save.discoveryOrder.slice(),
+    positions: save.positions ? JSON.parse(JSON.stringify(save.positions)) : {},
+    discoveryOrder: save.discoveryOrder ? save.discoveryOrder.slice() : save.discovered.slice(),
     createdAt: save.createdAt,
     updatedAt: save.updatedAt,
     name: save.name
   };
   currentSaveIndex = index;
-  boardOffset = { x: 0, y: 0 };
-  renderedConnectionKeys = {};
   renderBoard();
 }
 
@@ -1920,56 +1932,36 @@ function createTileElement(wordId) {
   div.setAttribute('data-word', wordId);
   div.setAttribute('data-tier', word.tier);
   div.textContent = word.emoji + ' ' + word.name;
-  div.style.position = 'absolute';
-
-  var pos = gameState.positions[wordId];
-  if (pos) {
-    div.style.left = pos.x + 'px';
-    div.style.top = pos.y + 'px';
-  }
-
-  // Highlight connected lines on hover
-  div.addEventListener('mouseenter', function() {
-    var lines = document.querySelectorAll('.connection-line');
-    lines.forEach(function(line) {
-      if (line.getAttribute('data-from') === wordId || line.getAttribute('data-to') === wordId) {
-        line.classList.add('highlight');
-      }
-    });
-  });
-  div.addEventListener('mouseleave', function() {
-    document.querySelectorAll('.connection-line.highlight').forEach(function(line) {
-      line.classList.remove('highlight');
-    });
-  });
 
   return div;
 }
 
 function renderBoard() {
-  var board = document.getElementById('board');
-  if (!board) return;
-
-  // Clear existing tiles
-  var existingTiles = board.querySelectorAll('.tile');
-  existingTiles.forEach(function(t) { t.remove(); });
-
-  // Apply board offset
   var boardInner = document.getElementById('board-inner');
-  if (boardInner) {
-    boardInner.style.transform = 'translate(' + boardOffset.x + 'px, ' + boardOffset.y + 'px)';
+  if (!boardInner) return;
+
+  // Clear existing tiles and tier separators
+  boardInner.querySelectorAll('.tile, .tier-separator').forEach(function(t) { t.remove(); });
+
+  // Add tiles grouped by tier
+  for (var tier = 1; tier <= 5; tier++) {
+    var tierWords = gameState.discovered.filter(function(id) {
+      return WORDS[id] && WORDS[id].tier === tier;
+    });
+    if (tierWords.length === 0) continue;
+
+    // Add tier separator
+    var sep = document.createElement('div');
+    sep.className = 'tier-separator';
+    sep.textContent = tier === 1 ? 'BASE WORDS' : 'TIER ' + tier + (tier >= 4 ? ' \u2605' : '');
+    boardInner.appendChild(sep);
+
+    tierWords.forEach(function(wordId) {
+      var tile = createTileElement(wordId);
+      if (tile) boardInner.appendChild(tile);
+    });
   }
 
-  // Create tiles for all discovered words
-  gameState.discovered.forEach(function(wordId) {
-    var tile = createTileElement(wordId);
-    if (tile) {
-      var container = boardInner || board;
-      container.appendChild(tile);
-    }
-  });
-
-  renderConnections();
   updateProgress();
   renderSidebar();
   if (isMobileView()) {
@@ -1977,63 +1969,7 @@ function renderBoard() {
   }
 }
 
-function deriveConnections() {
-  var discoveredSet = {};
-  gameState.discovered.forEach(function(id) { discoveredSet[id] = true; });
-
-  var connections = [];
-  COMBOS.forEach(function(combo) {
-    if (discoveredSet[combo.a] && discoveredSet[combo.b] && discoveredSet[combo.result]) {
-      connections.push({ from: combo.a, to: combo.result });
-      if (combo.a !== combo.b) {
-        connections.push({ from: combo.b, to: combo.result });
-      }
-    }
-  });
-
-  return connections;
-}
-
-// FIX #7: SVG is inside board-inner, so line coordinates are in board-inner space.
-// No boardOffset adjustment needed.
-function renderConnections() {
-  var svg = document.getElementById('connections-svg');
-  if (!svg) return;
-
-  // Clear existing lines
-  while (svg.firstChild) {
-    svg.removeChild(svg.firstChild);
-  }
-
-  var connections = deriveConnections();
-
-  connections.forEach(function(conn) {
-    var connKey = [conn.from, conn.to].sort().join('|');
-    var posA = gameState.positions[conn.from];
-    var posB = gameState.positions[conn.to];
-    if (!posA || !posB) return;
-
-    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    // Center lines on each tile's actual width
-    var wA = estimateTileWidth(conn.from) / 2;
-    var wB = estimateTileWidth(conn.to) / 2;
-    line.setAttribute('x1', posA.x + wA);
-    line.setAttribute('y1', posA.y + 20);
-    line.setAttribute('x2', posB.x + wB);
-    line.setAttribute('y2', posB.y + 20);
-    line.classList.add('connection-line');
-    line.setAttribute('data-from', conn.from);
-    line.setAttribute('data-to', conn.to);
-
-    // Only animate NEW connections
-    if (!renderedConnectionKeys[connKey]) {
-      line.classList.add('animated');
-      renderedConnectionKeys[connKey] = true;
-    }
-
-    svg.appendChild(line);
-  });
-}
+// deriveConnections and renderConnections removed — SVG lines hidden in flow layout
 
 function updateProgress() {
   var totalWords = Object.keys(WORDS).length;
@@ -2183,262 +2119,165 @@ function showToast(message, duration) {
   }, duration);
 }
 
-// ---------- INTERACTION ----------
+// ---------- INTERACTION (Click-Click for Desktop) ----------
 
-var dragState = null;
-var selectedTile = null;
-var lastTapTime = 0;
-var lastTapTarget = null;
-var panState = null;
+var desktopSelectedA = null;
+var desktopSelectedB = null;
 
 function initInteraction() {
   var board = document.getElementById('board');
   if (!board) return;
 
-  board.addEventListener('pointerdown', onPointerDown);
-  board.addEventListener('pointermove', onPointerMove);
-  board.addEventListener('pointerup', onPointerUp);
-  board.addEventListener('pointercancel', onPointerUp);
+  // Unified click handler for tiles on desktop
+  board.addEventListener('click', function(e) {
+    if (isMobileView()) return; // mobile has its own handler
 
-  // Prevent default touch behaviors on the board
-  board.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-    }
-  }, { passive: false });
+    // Ignore clicks on the merge bar area
+    if (e.target.closest('.desktop-merge-bar')) return;
 
-  board.addEventListener('touchmove', function(e) {
-    if (e.touches.length === 2 || dragState) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  // Two-finger pan for mobile
-  board.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 2) {
-      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      panState = {
-        startX: midX,
-        startY: midY,
-        startOffsetX: boardOffset.x,
-        startOffsetY: boardOffset.y
-      };
-    }
-  });
-
-  board.addEventListener('touchmove', function(e) {
-    if (e.touches.length === 2 && panState) {
-      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      boardOffset.x = panState.startOffsetX + (midX - panState.startX);
-      boardOffset.y = panState.startOffsetY + (midY - panState.startY);
-      applyBoardTransform();
-      renderConnections();
-    }
-  });
-
-  board.addEventListener('touchend', function(e) {
-    if (e.touches.length < 2) {
-      panState = null;
-    }
-  });
-}
-
-function applyBoardTransform() {
-  var boardInner = document.getElementById('board-inner');
-  if (boardInner) {
-    boardInner.style.transform = 'translate(' + boardOffset.x + 'px, ' + boardOffset.y + 'px)';
-  }
-}
-
-function getTileFromEvent(e) {
-  var el = e.target;
-  while (el && !el.classList.contains('tile')) {
-    if (el.id === 'board' || el.id === 'board-inner') return null;
-    el = el.parentElement;
-  }
-  return el;
-}
-
-function onPointerDown(e) {
-  var tileEl = getTileFromEvent(e);
-
-  if (tileEl) {
-    var wordId = tileEl.getAttribute('data-word');
-    var now = Date.now();
-
-    // Double-tap / double-click detection
-    if (lastTapTarget === wordId && (now - lastTapTime) < 400) {
-      lastTapTime = 0;
-      lastTapTarget = null;
-      attemptMerge(wordId, wordId);
+    var tileEl = e.target.closest('.tile');
+    if (!tileEl) {
+      // Clicked empty space - deselect
+      clearDesktopSelection();
       return;
     }
-    lastTapTime = now;
-    lastTapTarget = wordId;
 
-    if (e.pointerType === 'touch') {
-      // Tap-tap mode for touch
-      if (selectedTile && selectedTile !== wordId) {
-        // Second tap on different tile — merge
-        var firstTile = selectedTile;
-        deselectTile();
-        attemptMerge(firstTile, wordId);
-      } else if (selectedTile === wordId) {
-        // Tap same tile again — deselect
-        deselectTile();
-      } else {
-        // First tap — select
-        selectTile(wordId, tileEl);
-      }
+    var wordId = tileEl.getAttribute('data-word');
+    onDesktopWordClick(wordId);
+  });
+}
+
+function onDesktopWordClick(wordId) {
+  if (!desktopSelectedA) {
+    desktopSelectedA = wordId;
+    updateDesktopSelection();
+    updateDesktopMergeBar();
+  } else if (desktopSelectedA === wordId) {
+    // Same word clicked - try self-merge or deselect
+    var selfResult = lookupCombo(wordId, wordId);
+    if (selfResult) {
+      desktopSelectedB = wordId;
+      updateDesktopMergeBar();
+      // Auto-merge
+      setTimeout(function() {
+        attemptMerge(desktopSelectedA, desktopSelectedB);
+        clearDesktopSelection();
+        renderBoard();
+      }, 200);
     } else {
-      // Mouse/pen — drag mode
-      deselectTile();
-      var rect = tileEl.getBoundingClientRect();
-      dragState = {
-        wordId: wordId,
-        element: tileEl,
-        startX: gameState.positions[wordId].x,
-        startY: gameState.positions[wordId].y,
-        offsetX: e.clientX - rect.left,
-        offsetY: e.clientY - rect.top
-      };
-      tileEl.setPointerCapture(e.pointerId);
-      tileEl.classList.add('dragging');
-      tileEl.style.zIndex = 1000;
+      clearDesktopSelection();
     }
   } else {
-    // Clicked empty board space
-    if (selectedTile) {
-      deselectTile();
-    } else if (e.pointerType !== 'touch') {
-      // Begin pan (desktop only — mobile uses two-finger)
-      panState = {
-        startX: e.clientX,
-        startY: e.clientY,
-        startOffsetX: boardOffset.x,
-        startOffsetY: boardOffset.y
-      };
-      e.target.setPointerCapture(e.pointerId);
-    }
+    desktopSelectedB = wordId;
+    updateDesktopSelection();
+    updateDesktopMergeBar();
+    // Auto-merge after brief delay
+    setTimeout(function() {
+      attemptMerge(desktopSelectedA, desktopSelectedB);
+      clearDesktopSelection();
+      renderBoard();
+    }, 300);
   }
 }
 
-// FIX #4 (drag coords): Since tiles and SVG are both in board-inner,
-// tile positions are in board-inner coordinate space.
-// Convert client coords to board-inner coords:
-//   board-inner origin in client space = board.getBoundingClientRect().left + boardOffset.x
-// So tile position = clientX - boardOriginClient - offsetX
-//   = clientX - (boardRect.left + boardOffset.x) - offsetX
-function onPointerMove(e) {
-  if (dragState) {
-    var board = document.getElementById('board');
-    var bRect = board.getBoundingClientRect();
+function clearDesktopSelection() {
+  desktopSelectedA = null;
+  desktopSelectedB = null;
+  updateDesktopSelection();
+  updateDesktopMergeBar();
+}
 
-    // Position in board-inner coordinate space
-    var newX = e.clientX - bRect.left - boardOffset.x - dragState.offsetX;
-    var newY = e.clientY - bRect.top - boardOffset.y - dragState.offsetY;
-
-    dragState.element.style.left = newX + 'px';
-    dragState.element.style.top = newY + 'px';
-
-    gameState.positions[dragState.wordId] = { x: newX, y: newY };
-
-    // FIX #3: use drop-target class (matches CSS)
-    clearHighlights();
-    var target = getDropTarget(e.clientX, e.clientY, dragState.element);
-    if (target) {
-      target.classList.add('drop-target');
-    }
-
-    // Update connection lines during drag
-    renderConnections();
-
-  } else if (panState) {
-    var dx = e.clientX - panState.startX;
-    var dy = e.clientY - panState.startY;
-    boardOffset.x = panState.startOffsetX + dx;
-    boardOffset.y = panState.startOffsetY + dy;
-    applyBoardTransform();
-    renderConnections();
+function updateDesktopSelection() {
+  document.querySelectorAll('.tile.selected').forEach(function(el) {
+    el.classList.remove('selected');
+  });
+  if (desktopSelectedA) {
+    var elA = document.querySelector('.tile[data-word="' + desktopSelectedA + '"]');
+    if (elA) elA.classList.add('selected');
+  }
+  if (desktopSelectedB && desktopSelectedB !== desktopSelectedA) {
+    var elB = document.querySelector('.tile[data-word="' + desktopSelectedB + '"]');
+    if (elB) elB.classList.add('selected');
   }
 }
 
-function onPointerUp(e) {
-  if (dragState) {
-    var dropTarget = getDropTarget(e.clientX, e.clientY, dragState.element);
+function updateDesktopMergeBar() {
+  var slotA = document.getElementById('desktop-slot-a');
+  var slotB = document.getElementById('desktop-slot-b');
+  var mergeBtn = document.getElementById('desktop-merge-go');
+  var clearBtn = document.getElementById('desktop-merge-clear');
 
-    dragState.element.classList.remove('dragging');
-    dragState.element.style.zIndex = '';
-    clearHighlights();
-
-    if (dropTarget) {
-      var targetWordId = dropTarget.getAttribute('data-word');
-
-      // Return tile to start position before merge
-      gameState.positions[dragState.wordId] = { x: dragState.startX, y: dragState.startY };
-      dragState.element.style.left = dragState.startX + 'px';
-      dragState.element.style.top = dragState.startY + 'px';
-
-      attemptMerge(dragState.wordId, targetWordId);
+  if (slotA) {
+    if (desktopSelectedA) {
+      var wA = WORDS[desktopSelectedA];
+      slotA.textContent = wA.emoji + ' ' + wA.name;
+      slotA.classList.add('filled');
     } else {
-      // Tile stays where dropped — position already updated during drag
-    }
-
-    saveGame();
-    dragState = null;
-
-  } else if (panState && e.pointerType !== 'touch') {
-    panState = null;
-  }
-}
-
-function getDropTarget(clientX, clientY, excludeEl) {
-  var boardInner = document.getElementById('board-inner') || document.getElementById('board');
-  var tiles = boardInner.querySelectorAll('.tile');
-  var hitTile = null;
-
-  for (var i = 0; i < tiles.length; i++) {
-    var tile = tiles[i];
-    if (tile === excludeEl) continue;
-    var rect = tile.getBoundingClientRect();
-    if (clientX >= rect.left && clientX <= rect.right &&
-        clientY >= rect.top && clientY <= rect.bottom) {
-      hitTile = tile;
-      break;
+      slotA.textContent = 'Click a word...';
+      slotA.classList.remove('filled');
     }
   }
-
-  // If no other tile found, check if pointer is still over the dragged tile (self-merge)
-  if (!hitTile && excludeEl) {
-    var selfRect = excludeEl.getBoundingClientRect();
-    if (clientX >= selfRect.left && clientX <= selfRect.right &&
-        clientY >= selfRect.top && clientY <= selfRect.bottom) {
-      hitTile = excludeEl;
+  if (slotB) {
+    if (desktopSelectedB) {
+      var wB = WORDS[desktopSelectedB];
+      slotB.textContent = wB.emoji + ' ' + wB.name;
+      slotB.classList.add('filled');
+    } else {
+      slotB.textContent = '...';
+      slotB.classList.remove('filled');
     }
   }
-
-  return hitTile;
-}
-
-function selectTile(wordId, element) {
-  selectedTile = wordId;
-  element.classList.add('selected');
-}
-
-function deselectTile() {
-  if (selectedTile) {
-    var el = document.querySelector('.tile[data-word="' + selectedTile + '"]');
-    if (el) el.classList.remove('selected');
-    selectedTile = null;
+  if (mergeBtn) {
+    mergeBtn.disabled = !(desktopSelectedA && desktopSelectedB);
+  }
+  if (clearBtn) {
+    clearBtn.style.display = desktopSelectedA ? '' : 'none';
   }
 }
 
-// FIX #3: use drop-target class (matches CSS)
-function clearHighlights() {
-  var highlighted = document.querySelectorAll('.drop-target');
-  highlighted.forEach(function(el) { el.classList.remove('drop-target'); });
+function initDesktopMergeBar() {
+  var mergeBtn = document.getElementById('desktop-merge-go');
+  if (mergeBtn) {
+    mergeBtn.addEventListener('click', function(e) {
+      e.stopPropagation(); // prevent board click handler
+      if (desktopSelectedA && desktopSelectedB) {
+        attemptMerge(desktopSelectedA, desktopSelectedB);
+        clearDesktopSelection();
+        renderBoard();
+      }
+    });
+  }
+  var clearBtn = document.getElementById('desktop-merge-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      clearDesktopSelection();
+    });
+  }
+  // Make slots clearable
+  var slotA = document.getElementById('desktop-slot-a');
+  if (slotA) {
+    slotA.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (desktopSelectedA) {
+        desktopSelectedA = null;
+        desktopSelectedB = null;
+        updateDesktopSelection();
+        updateDesktopMergeBar();
+      }
+    });
+  }
+  var slotB = document.getElementById('desktop-slot-b');
+  if (slotB) {
+    slotB.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (desktopSelectedB) {
+        desktopSelectedB = null;
+        updateDesktopSelection();
+        updateDesktopMergeBar();
+      }
+    });
+  }
 }
 
 // ---------- MERGE LOGIC ----------
@@ -2480,50 +2319,29 @@ function shakeTile(wordId) {
 }
 
 function discoverWord(resultId, parentA, parentB) {
-  var posA = gameState.positions[parentA];
-  var posB = gameState.positions[parentB];
-
-  // Preferred spawn: midpoint of parents, offset down
-  var preferX, preferY;
-  if (parentA === parentB) {
-    preferX = posA.x + 40;
-    preferY = posA.y + 60;
-  } else {
-    preferX = (posA.x + posB.x) / 2;
-    preferY = Math.max(posA.y, posB.y) + 60;
-  }
-
-  var newTileW = estimateTileWidth(resultId);
-  var pos = findOpenPosition(preferX, preferY, newTileW);
-  var spawnX = pos.x;
-  var spawnY = pos.y;
-
-  // Add to state
   gameState.discovered.push(resultId);
   gameState.discoveryOrder.push(resultId);
-  gameState.positions[resultId] = { x: spawnX, y: spawnY };
 
-  // Create tile element with pop-in animation
-  var tile = createTileElement(resultId);
-  if (tile) {
-    tile.classList.add('pop-in');
-    tile.style.left = spawnX + 'px';
-    tile.style.top = spawnY + 'px';
-    var container = document.getElementById('board-inner') || document.getElementById('board');
-    container.appendChild(tile);
-  }
+  var word = WORDS[resultId];
+  var tier = word.tier;
 
-  var tier = WORDS[resultId].tier;
+  // Re-render board (tile will appear in its tier section)
+  renderBoard();
 
-  // Tier 4+ effects
-  if (tier >= 4) {
-    // Convert board-inner coords to viewport coords for confetti
-    var board = document.getElementById('board');
-    var bRect = board.getBoundingClientRect();
-    var confettiX = spawnX + 50 + boardOffset.x + bRect.left;
-    var confettiY = spawnY + 20 + boardOffset.y + bRect.top;
-    spawnConfetti(confettiX, confettiY, tier);
-  }
+  // Scroll the new tile into view and animate
+  setTimeout(function() {
+    var newTile = document.querySelector('.tile[data-word="' + resultId + '"]');
+    if (newTile) {
+      newTile.classList.add('pop-in');
+      newTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Tier 4+ confetti
+      if (tier >= 4) {
+        var r = newTile.getBoundingClientRect();
+        spawnConfetti(r.left + r.width / 2, r.top + r.height / 2, tier);
+      }
+    }
+  }, 50);
 
   // Tier 5 screen flash
   if (tier === 5) {
@@ -2533,18 +2351,9 @@ function discoverWord(resultId, parentA, parentB) {
     }, 600);
   }
 
-  // Show discovery toast
-  var word = WORDS[resultId];
   showToast(word.emoji + ' ' + word.name + ' discovered!', 2500);
-
-  if (isMobileView()) {
-    renderMobileGrid();
-  }
-
-  // Render new connection lines (they will get .animated class since they are new)
-  renderConnections();
   updateProgress();
-  renderSidebar();
+  if (typeof renderSidebar === 'function') renderSidebar();
   saveGame();
 }
 
@@ -2809,16 +2618,20 @@ function updateHintButton() {
   var hintBtn = document.getElementById('hint-btn');
   if (!hintBtn) return;
 
-  if (consecutiveFails >= 5) {
+  if (consecutiveFails >= 3) {
     hintBtn.style.display = '';
     hintBtn.classList.add('glow');
-    // Determine hint level: 5 fails = level 1, 10 = level 2, 15+ = level 3
-    if (consecutiveFails >= 15) {
+    // Determine hint level: 3 fails = level 1, 6 = level 2, 9+ = level 3
+    if (consecutiveFails >= 9) {
       hintLevel = 3;
-    } else if (consecutiveFails >= 10) {
+    } else if (consecutiveFails >= 6) {
       hintLevel = 2;
     } else {
       hintLevel = 1;
+    }
+    // Show a toast the first time hint becomes available
+    if (consecutiveFails === 3) {
+      showToast('💡 Hint available! Tap the lightbulb', 2500);
     }
   } else {
     hintBtn.style.display = 'none';
@@ -3115,6 +2928,7 @@ function init() {
   loadSettings();
   initModals();
   initInteraction();
+  initDesktopMergeBar();
   initSidebar();
   initHints();
   initMobile();
