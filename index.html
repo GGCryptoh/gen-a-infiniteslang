@@ -2510,7 +2510,7 @@ function onDesktopWordClick(wordId) {
   }
 
   // Double-click detection
-  if (lastClickWord === wordId && now - lastClickTime < 400) {
+  if (lastClickWord === wordId && now - lastClickTime < 600) {
     // Double-click: lock into slot A
     desktopSelectedA = wordId;
     desktopSelectedB = null;
@@ -2554,8 +2554,9 @@ function onDesktopWordClick(wordId) {
     clearDesktopSelection();
     isLocked = false;
   } else if (desktopSelectedA === wordId && isLocked) {
-    // Clicked the locked word — ignore (use X button to clear)
-    return;
+    // Clicked the locked word — unlock it
+    clearDesktopSelection();
+    isLocked = false;
   } else {
     // Different word — fill slot B and merge
     desktopSelectedB = wordId;
