@@ -645,6 +645,32 @@ body {
   background: var(--header-bg);
 }
 
+.desktop-merge-bar .merge-slot.locked {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: #fff;
+  opacity: 1;
+  font-weight: 600;
+  border-style: solid;
+  position: relative;
+}
+
+.slot-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 11px;
+  margin-left: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
 .desktop-merge-bar .merge-plus {
   font-size: 18px;
   font-weight: 700;
@@ -928,6 +954,8 @@ body {
 .hint-btn {
   position: relative;
   transition: opacity 0.3s ease, transform 0.15s ease;
+  font-size: 24px !important;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
 }
 
 .hint-btn.glow {
@@ -935,8 +963,8 @@ body {
 }
 
 @keyframes hint-glow {
-  0%, 100% { filter: drop-shadow(0 0 0px transparent); }
-  50% { filter: drop-shadow(0 0 8px var(--accent-color)); }
+  0%, 100% { filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 4px var(--accent-color)); }
+  50% { filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 12px var(--accent-color)) drop-shadow(0 0 20px var(--accent-color)); }
 }
 
 .hint-popup {
@@ -1612,6 +1640,13 @@ body {
         <label>Roast messages</label>
         <input type="checkbox" id="roast-toggle" checked>
       </div>
+      <div class="setting">
+        <label>Board view</label>
+        <select id="view-select">
+          <option value="grid">📋 List View</option>
+          <option value="canvas">🗺️ Map View</option>
+        </select>
+      </div>
       <button class="btn modal-close" id="settings-close">Done</button>
     </div>
   </div>
@@ -2011,6 +2046,11 @@ function applySettings() {
 
   var roastToggle = document.getElementById('roast-toggle');
   if (roastToggle) roastToggle.checked = settings.roastMessages;
+
+  var viewSelect = document.getElementById('view-select');
+  if (viewSelect) viewSelect.value = settings.view || 'grid';
+
+  applyView();
 
   // Apply sidebar collapsed state
   var sidebar = document.getElementById('sidebar');
@@ -2540,23 +2580,39 @@ function updateDesktopMergeBar() {
   var clearBtn = document.getElementById('desktop-merge-clear');
 
   if (slotA) {
+    slotA.classList.remove('filled', 'locked');
+    slotA.innerHTML = '';
     if (desktopSelectedA) {
       var wA = WORDS[desktopSelectedA];
-      slotA.textContent = wA.emoji + ' ' + wA.name;
-      slotA.classList.add('filled');
+      var textA = document.createTextNode(wA.emoji + ' ' + wA.name);
+      slotA.appendChild(textA);
+      slotA.classList.add('locked');
+      // Add X button
+      var xBtn = document.createElement('span');
+      xBtn.className = 'slot-clear';
+      xBtn.textContent = '✕';
+      xBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        desktopSelectedA = null;
+        desktopSelectedB = null;
+        updateDesktopSelection();
+        updateDesktopMergeBar();
+      });
+      slotA.appendChild(xBtn);
     } else {
       slotA.textContent = 'Click a word...';
-      slotA.classList.remove('filled');
     }
   }
   if (slotB) {
+    slotB.classList.remove('filled', 'locked');
+    slotB.innerHTML = '';
     if (desktopSelectedB) {
       var wB = WORDS[desktopSelectedB];
-      slotB.textContent = wB.emoji + ' ' + wB.name;
+      var textB = document.createTextNode(wB.emoji + ' ' + wB.name);
+      slotB.appendChild(textB);
       slotB.classList.add('filled');
     } else {
       slotB.textContent = '...';
-      slotB.classList.remove('filled');
     }
   }
   if (mergeBtn) {
@@ -2785,6 +2841,16 @@ function initModals() {
       settings.theme = this.value;
       applySettings();
       saveSettings();
+    });
+  }
+
+  var viewSelect = document.getElementById('view-select');
+  if (viewSelect) {
+    viewSelect.addEventListener('change', function() {
+      settings.view = this.value;
+      applyView();
+      saveSettings();
+      renderBoard();
     });
   }
 
