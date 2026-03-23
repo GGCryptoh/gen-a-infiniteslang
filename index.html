@@ -2249,6 +2249,11 @@ function renderBoard() {
       });
       if (tierWords.length === 0) continue;
 
+      // Sort alphabetically by name
+      tierWords.sort(function(a, b) {
+        return WORDS[a].name.localeCompare(WORDS[b].name);
+      });
+
       var sep = document.createElement('div');
       sep.className = 'tier-separator';
       var totalInTier = Object.keys(WORDS).filter(function(id) { return WORDS[id].tier === tier; }).length;
@@ -2381,6 +2386,9 @@ function renderSidebar() {
 
   for (var tier = 1; tier <= 5; tier++) {
     if (tiers[tier].length === 0) continue;
+
+    // Sort alphabetically
+    tiers[tier].sort(function(a, b) { return a.name.localeCompare(b.name); });
 
     var section = document.createElement('div');
     section.className = 'sidebar-tier';
@@ -3313,6 +3321,10 @@ function renderMobileGrid() {
       });
       if (tierWords.length === 0) continue;
 
+      tierWords.sort(function(a, b) {
+        return WORDS[a].name.localeCompare(WORDS[b].name);
+      });
+
       var header = document.createElement('div');
       header.className = 'mobile-tier-header';
       header.textContent = 'TIER ' + tier + (tier === 5 ? ' \u2605 MYTHICAL' : tier === 4 ? ' \u2605 RARE' : '');
@@ -3327,6 +3339,10 @@ function renderMobileGrid() {
     var tierNum = parseInt(currentMobileTab);
     var allTierWords = Object.keys(WORDS).filter(function(id) {
       return WORDS[id].tier === tierNum;
+    });
+
+    allTierWords.sort(function(a, b) {
+      return WORDS[a].name.localeCompare(WORDS[b].name);
     });
 
     allTierWords.forEach(function(wordId) {
