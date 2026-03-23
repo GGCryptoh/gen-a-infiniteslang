@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Infinite Slang</title>
+  <title>Slang Craft</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <style>
 /* ============================================================
-   INFINITE SLANG — Complete CSS
+   SLANG CRAFT — Complete CSS
    A single-page merge game with 4 switchable themes
    ============================================================ */
 
@@ -456,6 +456,22 @@ body {
 
 .tile.pop-in {
   animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tile.newly-discovered {
+  animation: new-pulse 2s ease-in-out 10;
+  box-shadow: 0 0 12px var(--accent-color);
+}
+
+@keyframes new-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--accent-color); border-color: var(--accent-color); }
+  50% { box-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color); border-color: var(--accent-color); }
+}
+
+/* Mobile version */
+.mobile-word.newly-discovered {
+  animation: new-pulse 2s ease-in-out 10;
+  box-shadow: 0 0 12px var(--accent-color);
 }
 
 /* ── Tile Tiers ─────────────────────────────────────────────── */
@@ -1653,7 +1669,7 @@ body {
 </head>
 <body>
   <header class="header">
-    <div class="logo">🌱 INFINITE SLANG</div>
+    <div class="logo">🌱 SLANG CRAFT</div>
     <div class="controls">
       <button id="hint-btn" class="icon-btn hint-btn" title="Hint" style="display:none;">💡</button>
       <button id="view-toggle" class="icon-btn" title="Switch view">🔀</button>
@@ -1767,7 +1783,7 @@ body {
 
   <script>
 // ============================================================
-// Infinite Slang — Complete Game JS
+// Slang Craft — Complete Game JS
 // ============================================================
 
 // ---------- DATA LAYER ----------
@@ -2341,7 +2357,10 @@ function renderBoard() {
         tile.style.left = gameState.positions[wordId].x + 'px';
         tile.style.top = gameState.positions[wordId].y + 'px';
       }
-      if (tile) boardInner.appendChild(tile);
+      if (tile) {
+        if (lastDiscoveredId === wordId) tile.classList.add('newly-discovered');
+        boardInner.appendChild(tile);
+      }
     });
     renderConnections();
   } else {
@@ -2366,7 +2385,10 @@ function renderBoard() {
 
       tierWords.forEach(function(wordId) {
         var tile = createTileElement(wordId);
-        if (tile) boardInner.appendChild(tile);
+        if (tile) {
+          if (lastDiscoveredId === wordId) tile.classList.add('newly-discovered');
+          boardInner.appendChild(tile);
+        }
       });
     }
   }
@@ -2582,6 +2604,8 @@ function showToast(message, duration) {
 
 // ---------- INTERACTION (Click-Click for Desktop) ----------
 
+var lastDiscoveredId = null;
+var lastDiscoveredTimeout = null;
 var desktopSelectedA = null;
 var desktopSelectedB = null;
 
@@ -2950,6 +2974,17 @@ function discoverWord(resultId, parentA, parentB) {
   var word = WORDS[resultId];
   var tier = word.tier;
 
+  // Track last discovered for highlight pulse
+  if (lastDiscoveredTimeout) clearTimeout(lastDiscoveredTimeout);
+  lastDiscoveredId = resultId;
+  lastDiscoveredTimeout = setTimeout(function() {
+    lastDiscoveredId = null;
+    // Remove the class from any element that has it
+    document.querySelectorAll('.newly-discovered').forEach(function(el) {
+      el.classList.remove('newly-discovered');
+    });
+  }, 20000);
+
   // Re-render board (tile will appear in its tier section)
   renderBoard();
 
@@ -2958,6 +2993,7 @@ function discoverWord(resultId, parentA, parentB) {
     var newTile = document.querySelector('.tile[data-word="' + resultId + '"]');
     if (newTile) {
       newTile.classList.add('pop-in');
+      newTile.classList.add('newly-discovered');
       newTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       // Tier 4+ confetti
