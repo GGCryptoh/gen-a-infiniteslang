@@ -238,9 +238,9 @@ body {
 /* ── Board ──────────────────────────────────────────────────── */
 .board {
   position: relative;
-  height: calc(100vh - 48px - 48px);
-  height: calc(100dvh - 48px - 48px);
-  margin-top: 48px;
+  height: calc(100vh - 48px - 48px - 48px);
+  height: calc(100dvh - 48px - 48px - 48px);
+  margin-top: 96px;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -608,17 +608,17 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 24px;
-  background: var(--tile-bg);
-  border-bottom: 1px solid var(--header-border);
-  border-radius: 0;
-  flex-shrink: 0;
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 10px 24px;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--header-border);
+  position: fixed;
+  top: 48px;
+  left: 0;
+  right: 0;
+  z-index: 95;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  min-height: 48px;
 }
 
 .desktop-merge-bar .merge-slot {
@@ -1560,14 +1560,15 @@ body {
     </div>
   </header>
 
+  <div class="desktop-merge-bar" id="desktop-merge-bar">
+    <span class="merge-slot" id="desktop-slot-a">Click or double-click to lock...</span>
+    <span class="merge-plus">+</span>
+    <span class="merge-slot" id="desktop-slot-b">...</span>
+    <button class="merge-go" id="desktop-merge-go" disabled>Merge!</button>
+    <button class="merge-clear" id="desktop-merge-clear" style="display:none;">&#10005;</button>
+  </div>
+
   <main class="board" id="board">
-    <div class="desktop-merge-bar" id="desktop-merge-bar">
-      <span class="merge-slot" id="desktop-slot-a">Click or double-click to lock...</span>
-      <span class="merge-plus">+</span>
-      <span class="merge-slot" id="desktop-slot-b">...</span>
-      <button class="merge-go" id="desktop-merge-go" disabled>Merge!</button>
-      <button class="merge-clear" id="desktop-merge-clear" style="display:none;">&#10005;</button>
-    </div>
     <div id="board-inner">
       <svg class="connections-svg" id="connections-svg"></svg>
       <!-- Tiles go here dynamically -->
