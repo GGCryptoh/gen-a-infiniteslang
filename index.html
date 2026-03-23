@@ -1046,6 +1046,99 @@ body {
   animation: confetti-fly 1s ease-out forwards;
 }
 
+/* ── Discovery Popup ────────────────────────────────────────── */
+.discovery-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  animation: overlay-fade-in 0.2s ease-out;
+  pointer-events: all;
+}
+
+@keyframes overlay-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.discovery-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 40px 24px;
+  border-radius: 16px;
+  background: var(--modal-bg);
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.3), 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+  max-width: 90vw;
+}
+
+@keyframes card-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.discovery-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.4;
+}
+
+.discovery-emoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.discovery-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.discovery-recipe {
+  font-size: 13px;
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+.discovery-tier {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.discovery-tier[data-tier="2"] { background: var(--tier2-glow); border: 1px solid var(--tier2-border); }
+.discovery-tier[data-tier="3"] { background: var(--tier3-glow); border: 1px solid var(--tier3-border); }
+.discovery-tier[data-tier="4"] { background: var(--tier4-glow); border: 1px solid var(--tier4-border); color: #000; }
+.discovery-tier[data-tier="5"] { background: var(--tier5-glow); border: 1px solid var(--tier5-border); animation: rainbow-border 2s linear infinite; }
+
+/* Celebration sprites that burst from the emoji */
+.discovery-sprite {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 501;
+  animation: sprite-burst 0.8s ease-out forwards;
+}
+
+@keyframes sprite-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sx), var(--sy)) scale(0.4); opacity: 0; }
+}
+
 /* ── Screen Flash ───────────────────────────────────────────── */
 .screen-flash {
   animation: flash 0.5s ease-out;
@@ -2761,6 +2854,83 @@ function shakeTile(wordId) {
   }, 500);
 }
 
+function showDiscoveryPopup(wordId) {
+  var word = WORDS[wordId];
+  if (!word) return;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'discovery-overlay';
+
+  var card = document.createElement('div');
+  card.className = 'discovery-card';
+
+  var label = document.createElement('div');
+  label.className = 'discovery-label';
+  label.textContent = 'New Discovery!';
+
+  var emoji = document.createElement('div');
+  emoji.className = 'discovery-emoji';
+  emoji.textContent = word.emoji;
+
+  var name = document.createElement('div');
+  name.className = 'discovery-name';
+  name.textContent = word.name;
+
+  var recipe = getRecipeFor(wordId);
+  var recipeEl = document.createElement('div');
+  recipeEl.className = 'discovery-recipe';
+  recipeEl.textContent = recipe || '';
+
+  var tierBadge = document.createElement('span');
+  tierBadge.className = 'discovery-tier';
+  tierBadge.setAttribute('data-tier', word.tier);
+  var tierNames = { 2: 'Tier 2', 3: 'Tier 3', 4: 'Tier 4 \u2605 Rare', 5: 'Tier 5 \u2605 Mythical' };
+  tierBadge.textContent = tierNames[word.tier] || 'Tier ' + word.tier;
+
+  card.appendChild(label);
+  card.appendChild(emoji);
+  card.appendChild(name);
+  card.appendChild(recipeEl);
+  card.appendChild(tierBadge);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  // Spawn celebration sprites from the emoji
+  var sprites = ['\u2728', '\u2B50', '\u{1F525}', '\u{1F389}', '\u{1F38A}', '\u{1F4AB}', '\u{1F31F}', '\u2764\uFE0F'];
+  if (word.tier >= 4) sprites = ['\u{1F451}', '\u{1F48E}', '\u2728', '\u{1F525}', '\u{1F31F}', '\u{1F389}', '\u{1F38A}', '\u{1F4AB}', '\u2B50', '\u{1F3C6}'];
+  var spriteCount = word.tier >= 4 ? 12 : 8;
+
+  setTimeout(function() {
+    for (var i = 0; i < spriteCount; i++) {
+      var sp = document.createElement('span');
+      sp.className = 'discovery-sprite';
+      sp.textContent = sprites[i % sprites.length];
+      var angle = (i / spriteCount) * Math.PI * 2;
+      var dist = 80 + Math.random() * 60;
+      sp.style.setProperty('--sx', Math.cos(angle) * dist + 'px');
+      sp.style.setProperty('--sy', Math.sin(angle) * dist + 'px');
+      sp.style.left = '50%';
+      sp.style.top = '35%';
+      card.appendChild(sp);
+    }
+  }, 200);
+
+  // Auto-dismiss after delay (longer for higher tiers)
+  var duration = word.tier >= 4 ? 2500 : 1800;
+  setTimeout(function() {
+    overlay.style.transition = 'opacity 0.3s ease';
+    overlay.style.opacity = '0';
+    setTimeout(function() {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 300);
+  }, duration);
+
+  // Tap to dismiss early
+  overlay.addEventListener('click', function() {
+    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  });
+}
+
 function discoverWord(resultId, parentA, parentB) {
   gameState.discovered.push(resultId);
   gameState.discoveryOrder.push(resultId);
@@ -2806,7 +2976,7 @@ function discoverWord(resultId, parentA, parentB) {
     }, 600);
   }
 
-  showToast(word.emoji + ' ' + word.name + ' discovered!', 2500);
+  showDiscoveryPopup(resultId);
   updateProgress();
   if (typeof renderSidebar === 'function') renderSidebar();
   saveGame();
