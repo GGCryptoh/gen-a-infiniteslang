@@ -2562,10 +2562,27 @@ function onDesktopWordClick(wordId) {
     updateDesktopSelection();
     updateDesktopMergeBar();
     pendingMergeTimeout = setTimeout(function() {
-      attemptMerge(desktopSelectedA, desktopSelectedB);
-      clearDesktopSelection();
-      isLocked = false;
-      renderBoard();
+      var wordA = desktopSelectedA;
+      var wordB = desktopSelectedB;
+      var result = lookupCombo(wordA, wordB);
+      var alreadyFound = result && gameState.discovered.indexOf(result) !== -1;
+
+      attemptMerge(wordA, wordB);
+
+      if (result && !alreadyFound) {
+        // Successful merge — clear everything
+        clearDesktopSelection();
+        isLocked = false;
+        renderBoard();
+      } else if (isLocked) {
+        // Failed merge but word was locked — keep slot A, clear slot B
+        desktopSelectedB = null;
+        updateDesktopSelection();
+        updateDesktopMergeBar();
+      } else {
+        // Failed merge, not locked — clear everything
+        clearDesktopSelection();
+      }
     }, 300);
   }
 }
