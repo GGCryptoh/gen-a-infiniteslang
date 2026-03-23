@@ -1562,7 +1562,7 @@ body {
 
   <main class="board" id="board">
     <div class="desktop-merge-bar" id="desktop-merge-bar">
-      <span class="merge-slot" id="desktop-slot-a">Click a word...</span>
+      <span class="merge-slot" id="desktop-slot-a">Click or double-click to lock...</span>
       <span class="merge-plus">+</span>
       <span class="merge-slot" id="desktop-slot-b">...</span>
       <button class="merge-go" id="desktop-merge-go" disabled>Merge!</button>
@@ -2636,7 +2636,7 @@ function updateDesktopMergeBar() {
       });
       slotA.appendChild(xBtn);
     } else {
-      slotA.textContent = 'Click a word...';
+      slotA.textContent = 'Click or double-click to lock...';
     }
   }
   if (slotB) {
@@ -3517,6 +3517,14 @@ function init() {
   } else {
     newGame();
     renderBoard();
+  }
+
+  // First-time tip (shows once ever)
+  if (!safeGetStorage('infiniteslang-tip-shown')) {
+    setTimeout(function() {
+      showToast('💡 Tip: Double-click a word to lock it, then click others to merge', 5000);
+      safeSetStorage('infiniteslang-tip-shown', true);
+    }, 1500);
   }
 }
 
