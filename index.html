@@ -462,8 +462,16 @@ body {
 /* ── SVG Lines ──────────────────────────────────────────────── */
 .connection-line {
   stroke: var(--line-color);
-  stroke-width: 1.5;
+  stroke-width: 1;
   fill: none;
+  opacity: 0.2;
+  transition: opacity 0.2s ease;
+}
+
+/* Highlight lines connected to hovered tile */
+.connection-line.highlight {
+  opacity: 0.6;
+  stroke-width: 2;
 }
 
 .connection-line.animated {
@@ -1668,30 +1676,82 @@ function estimateTileWidth(wordId) {
 }
 
 function generateInitialPositions() {
-  // Place tiles in rows, respecting actual tile widths
   var vw = window.innerWidth;
-  var vh = window.innerHeight;
   var sidebarWidth = vw > 768 ? 240 : 0;
-  var usableWidth = vw - sidebarWidth - 40; // 20px padding each side
-  var vSpacing = 60;
-  var hGap = 20; // gap between tiles in a row
-  var startY = 30;
-  var x = 20;
+  var usableWidth = vw - sidebarWidth - 60; // 30px padding each side
+  var hGap = 16;
+  var vGap = 16;
+  var tileH = 38;
+  var startX = 30;
+  var startY = 20;
+  var x = startX;
   var y = startY;
-  var rowHeight = 40;
 
   for (var i = 0; i < BASE_WORDS.length; i++) {
     var tileW = estimateTileWidth(BASE_WORDS[i]);
 
-    // If this tile would overflow the row, wrap to next line
-    if (x + tileW > usableWidth && x > 20) {
-      x = 20;
-      y += rowHeight + vSpacing;
+    if (x + tileW > usableWidth + startX && x > startX) {
+      x = startX;
+      y += tileH + vGap;
     }
 
     gameState.positions[BASE_WORDS[i]] = { x: x, y: y };
     x += tileW + hGap;
   }
+}
+
+// Find open space for a new tile, avoiding all existing tiles
+function findOpenPosition(preferX, preferY, tileWidth) {
+  var tileH = 38;
+  var padding = 12;
+  var vw = window.innerWidth;
+  var sidebarWidth = vw > 768 ? 240 : 0;
+  var maxX = vw - sidebarWidth - tileWidth - 30;
+  var maxY = window.innerHeight - 120; // leave room for progress bar
+
+  // Try preferred position first
+  var candidates = [{ x: preferX, y: preferY }];
+
+  // Generate a spiral of candidate positions around the preferred spot
+  for (var ring = 1; ring <= 8; ring++) {
+    var step = ring * 60;
+    for (var angle = 0; angle < 360; angle += 45) {
+      var rad = angle * Math.PI / 180;
+      candidates.push({
+        x: preferX + Math.cos(rad) * step,
+        y: preferY + Math.sin(rad) * step
+      });
+    }
+  }
+
+  for (var c = 0; c < candidates.length; c++) {
+    var cx = Math.max(30, Math.min(candidates[c].x, maxX));
+    var cy = Math.max(20, Math.min(candidates[c].y, maxY));
+    var clear = true;
+
+    for (var d = 0; d < gameState.discovered.length; d++) {
+      var existId = gameState.discovered[d];
+      var ePos = gameState.positions[existId];
+      if (!ePos) continue;
+      var eW = estimateTileWidth(existId);
+      // Check bounding box overlap
+      if (cx < ePos.x + eW + padding && cx + tileWidth + padding > ePos.x &&
+          cy < ePos.y + tileH + padding && cy + tileH + padding > ePos.y) {
+        clear = false;
+        break;
+      }
+    }
+
+    if (clear) return { x: cx, y: cy };
+  }
+
+  // Fallback: place below all existing tiles
+  var maxBottom = 100;
+  for (var d2 = 0; d2 < gameState.discovered.length; d2++) {
+    var p = gameState.positions[gameState.discovered[d2]];
+    if (p && p.y + tileH > maxBottom) maxBottom = p.y + tileH;
+  }
+  return { x: 30 + Math.random() * 200, y: maxBottom + 30 };
 }
 
 // ---------- STORAGE HELPERS ----------
@@ -1868,6 +1928,21 @@ function createTileElement(wordId) {
     div.style.top = pos.y + 'px';
   }
 
+  // Highlight connected lines on hover
+  div.addEventListener('mouseenter', function() {
+    var lines = document.querySelectorAll('.connection-line');
+    lines.forEach(function(line) {
+      if (line.getAttribute('data-from') === wordId || line.getAttribute('data-to') === wordId) {
+        line.classList.add('highlight');
+      }
+    });
+  });
+  div.addEventListener('mouseleave', function() {
+    document.querySelectorAll('.connection-line.highlight').forEach(function(line) {
+      line.classList.remove('highlight');
+    });
+  });
+
   return div;
 }
 
@@ -1947,6 +2022,8 @@ function renderConnections() {
     line.setAttribute('x2', posB.x + wB);
     line.setAttribute('y2', posB.y + 20);
     line.classList.add('connection-line');
+    line.setAttribute('data-from', conn.from);
+    line.setAttribute('data-to', conn.to);
 
     // Only animate NEW connections
     if (!renderedConnectionKeys[connKey]) {
@@ -2406,62 +2483,20 @@ function discoverWord(resultId, parentA, parentB) {
   var posA = gameState.positions[parentA];
   var posB = gameState.positions[parentB];
 
-  // Midpoint + 40px down + random offset
-  var spawnX, spawnY;
+  // Preferred spawn: midpoint of parents, offset down
+  var preferX, preferY;
   if (parentA === parentB) {
-    spawnX = posA.x + 40;
-    spawnY = posA.y + 40;
+    preferX = posA.x + 40;
+    preferY = posA.y + 60;
   } else {
-    spawnX = (posA.x + posB.x) / 2;
-    spawnY = (posA.y + posB.y) / 2 + 40;
+    preferX = (posA.x + posB.x) / 2;
+    preferY = Math.max(posA.y, posB.y) + 60;
   }
 
-  // Add random offset so multiple discoveries from the same parents don't stack
-  spawnX += (Math.random() - 0.5) * 80;
-  spawnY += (Math.random() - 0.5) * 40;
-
-  // Width-aware overlap detection
   var newTileW = estimateTileWidth(resultId);
-  var tileH = 40;
-  var maxShiftAttempts = 20;
-  var shiftDirections = [
-    { dx: 1, dy: 0 },   // right
-    { dx: 0, dy: 1 },   // down
-    { dx: -1, dy: 0 },  // left
-    { dx: 0, dy: -1 },  // up
-    { dx: 1, dy: 1 },   // down-right
-    { dx: -1, dy: 1 },  // down-left
-  ];
-
-  for (var _s = 0; _s < maxShiftAttempts; _s++) {
-    var overlapping = false;
-    for (var _d = 0; _d < gameState.discovered.length; _d++) {
-      var existId = gameState.discovered[_d];
-      var existingPos = gameState.positions[existId];
-      if (!existingPos) continue;
-      var existW = estimateTileWidth(existId);
-      // Check if bounding boxes overlap with padding
-      var overlapX = spawnX < existingPos.x + existW + 12 && spawnX + newTileW + 12 > existingPos.x;
-      var overlapY = spawnY < existingPos.y + tileH + 8 && spawnY + tileH + 8 > existingPos.y;
-      if (overlapX && overlapY) {
-        overlapping = true;
-        break;
-      }
-    }
-    if (!overlapping) break;
-    // Cycle through shift directions, increasing distance
-    var dir = shiftDirections[_s % shiftDirections.length];
-    var dist = 60 + Math.floor(_s / shiftDirections.length) * 40;
-    spawnX += dir.dx * dist;
-    spawnY += dir.dy * dist;
-  }
-
-  // Clamp to viewport with 60px padding
-  var vw = window.innerWidth;
-  var vh = window.innerHeight;
-  var padding = 60;
-  spawnX = Math.max(padding, Math.min(spawnX, vw - padding - 100));
-  spawnY = Math.max(padding, Math.min(spawnY, vh - padding - 40));
+  var pos = findOpenPosition(preferX, preferY, newTileW);
+  var spawnX = pos.x;
+  var spawnY = pos.y;
 
   // Add to state
   gameState.discovered.push(resultId);
