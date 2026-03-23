@@ -3291,16 +3291,10 @@ function showHint() {
     // Vague: show one ingredient
     content = 'Try combining something with <span class="hint-word">' +
       wordA.emoji + ' ' + wordA.name + '</span> ...';
-  } else if (hintLevel === 2) {
-    // Specific: show both ingredients
-    content = 'Try: <span class="hint-word">' + wordA.emoji + ' ' + wordA.name +
-      '</span> + <span class="hint-word">' + wordB.emoji + ' ' + wordB.name +
-      '</span> = <span class="hint-mystery">???</span>';
   } else {
-    // Full reveal
-    content = '<span class="hint-word">' + wordA.emoji + ' ' + wordA.name +
-      '</span> + <span class="hint-word">' + wordB.emoji + ' ' + wordB.name +
-      '</span> = <span class="hint-mystery">' + result.emoji + ' ' + result.name + '</span>';
+    // Specific: show both ingredients, never reveal the result
+    content = 'Try: <span class="hint-word">' + wordA.emoji + ' ' + wordA.name +
+      '</span> + <span class="hint-word">' + wordB.emoji + ' ' + wordB.name + '</span>';
   }
 
   var popup = document.getElementById('hint-popup');
