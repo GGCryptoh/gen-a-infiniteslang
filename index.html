@@ -1660,25 +1660,37 @@ function newGame() {
   saveGame();
 }
 
+function estimateTileWidth(wordId) {
+  var word = WORDS[wordId];
+  if (!word) return 100;
+  // Rough estimate: emoji (~20px) + space + name chars (~8px each) + padding (32px)
+  return 20 + word.name.length * 8 + 32;
+}
+
 function generateInitialPositions() {
-  var cols = 5;
-  var rows = 4;
-  var hSpacing = 200;
-  var vSpacing = 100;
+  // Place tiles in rows, respecting actual tile widths
   var vw = window.innerWidth;
   var vh = window.innerHeight;
-  var totalW = (cols - 1) * hSpacing;
-  var totalH = (rows - 1) * vSpacing;
-  var startX = (vw - totalW) / 2;
-  var startY = (vh - totalH) / 2 + 20;
+  var sidebarWidth = vw > 768 ? 240 : 0;
+  var usableWidth = vw - sidebarWidth - 40; // 20px padding each side
+  var vSpacing = 60;
+  var hGap = 20; // gap between tiles in a row
+  var startY = 30;
+  var x = 20;
+  var y = startY;
+  var rowHeight = 40;
 
   for (var i = 0; i < BASE_WORDS.length; i++) {
-    var col = i % cols;
-    var row = Math.floor(i / cols);
-    gameState.positions[BASE_WORDS[i]] = {
-      x: startX + col * hSpacing,
-      y: startY + row * vSpacing
-    };
+    var tileW = estimateTileWidth(BASE_WORDS[i]);
+
+    // If this tile would overflow the row, wrap to next line
+    if (x + tileW > usableWidth && x > 20) {
+      x = 20;
+      y += rowHeight + vSpacing;
+    }
+
+    gameState.positions[BASE_WORDS[i]] = { x: x, y: y };
+    x += tileW + hGap;
   }
 }
 
@@ -1927,9 +1939,12 @@ function renderConnections() {
     if (!posA || !posB) return;
 
     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', posA.x + 50);
+    // Center lines on each tile's actual width
+    var wA = estimateTileWidth(conn.from) / 2;
+    var wB = estimateTileWidth(conn.to) / 2;
+    line.setAttribute('x1', posA.x + wA);
     line.setAttribute('y1', posA.y + 20);
-    line.setAttribute('x2', posB.x + 50);
+    line.setAttribute('x2', posB.x + wB);
     line.setAttribute('y2', posB.y + 20);
     line.classList.add('connection-line');
 
@@ -2402,28 +2417,43 @@ function discoverWord(resultId, parentA, parentB) {
   }
 
   // Add random offset so multiple discoveries from the same parents don't stack
-  spawnX += (Math.random() - 0.5) * 60;  // +/- 30px
-  spawnY += (Math.random() - 0.5) * 40;  // +/- 20px
+  spawnX += (Math.random() - 0.5) * 80;
+  spawnY += (Math.random() - 0.5) * 40;
 
-  // Check for overlap with existing tiles (within 80px) and shift if needed
-  var maxShiftAttempts = 10;
+  // Width-aware overlap detection
+  var newTileW = estimateTileWidth(resultId);
+  var tileH = 40;
+  var maxShiftAttempts = 20;
+  var shiftDirections = [
+    { dx: 1, dy: 0 },   // right
+    { dx: 0, dy: 1 },   // down
+    { dx: -1, dy: 0 },  // left
+    { dx: 0, dy: -1 },  // up
+    { dx: 1, dy: 1 },   // down-right
+    { dx: -1, dy: 1 },  // down-left
+  ];
+
   for (var _s = 0; _s < maxShiftAttempts; _s++) {
     var overlapping = false;
     for (var _d = 0; _d < gameState.discovered.length; _d++) {
-      var existingPos = gameState.positions[gameState.discovered[_d]];
-      if (existingPos) {
-        var dx = Math.abs(spawnX - existingPos.x);
-        var dy = Math.abs(spawnY - existingPos.y);
-        if (dx < 80 && dy < 80) {
-          overlapping = true;
-          break;
-        }
+      var existId = gameState.discovered[_d];
+      var existingPos = gameState.positions[existId];
+      if (!existingPos) continue;
+      var existW = estimateTileWidth(existId);
+      // Check if bounding boxes overlap with padding
+      var overlapX = spawnX < existingPos.x + existW + 12 && spawnX + newTileW + 12 > existingPos.x;
+      var overlapY = spawnY < existingPos.y + tileH + 8 && spawnY + tileH + 8 > existingPos.y;
+      if (overlapX && overlapY) {
+        overlapping = true;
+        break;
       }
     }
     if (!overlapping) break;
-    // Shift right and down to avoid overlap
-    spawnX += 90;
-    spawnY += 30;
+    // Cycle through shift directions, increasing distance
+    var dir = shiftDirections[_s % shiftDirections.length];
+    var dist = 60 + Math.floor(_s / shiftDirections.length) * 40;
+    spawnX += dir.dx * dist;
+    spawnY += dir.dy * dist;
   }
 
   // Clamp to viewport with 60px padding
