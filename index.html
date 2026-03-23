@@ -262,6 +262,80 @@ body {
 }
 
 .connections-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* View mode: canvas (freeform) */
+.board[data-view="canvas"] #board-inner {
+  display: block;
+  position: relative;
+  width: 3000px;
+  height: 3000px;
+  padding: 0;
+}
+
+.board[data-view="canvas"] .desktop-merge-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.board[data-view="canvas"] .tile {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  flex-direction: row;
+  gap: 0;
+}
+
+.board[data-view="canvas"] .tile.dragging {
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.board[data-view="canvas"] .tile-recipe {
+  display: none;
+}
+
+.board[data-view="canvas"] .tier-separator {
+  display: none;
+}
+
+.board[data-view="canvas"] .connections-svg {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Connection lines - visible in canvas mode */
+.board[data-view="canvas"] .connection-line {
+  stroke: var(--line-color);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0.35;
+}
+
+.board[data-view="canvas"] .connection-line.highlight {
+  opacity: 0.8;
+  stroke-width: 2.5;
+  stroke: var(--accent-color);
+}
+
+/* In flow mode (default), hide SVG */
+.board:not([data-view="canvas"]) .connections-svg {
   display: none;
 }
 
@@ -1451,6 +1525,7 @@ body {
     <div class="logo">🌱 INFINITE SLANG</div>
     <div class="controls">
       <button id="hint-btn" class="icon-btn hint-btn" title="Hint" style="display:none;">💡</button>
+      <button id="view-toggle" class="icon-btn" title="Switch view">🔀</button>
       <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
       <button id="saves-btn" class="icon-btn" title="Saves">💾</button>
       <span id="progress-count" class="progress-count">0/82</span>
@@ -1787,7 +1862,8 @@ var settings = {
   theme: 'dark-gradient',
   shakeOnMiss: true,
   roastMessages: true,
-  sidebarCollapsed: false
+  sidebarCollapsed: false,
+  view: 'grid'  // 'grid' or 'canvas'
 };
 
 var currentSaveIndex = -1;
@@ -1804,6 +1880,7 @@ function newGame() {
     updatedAt: now,
     name: 'Save ' + new Date().toLocaleString()
   };
+  generateInitialPositions();
   currentSaveIndex = -1;
   saveGame();
 }
@@ -1811,11 +1888,75 @@ function newGame() {
 function estimateTileWidth(wordId) {
   var word = WORDS[wordId];
   if (!word) return 100;
-  // Rough estimate: emoji (~20px) + space + name chars (~8px each) + padding (32px)
-  return 20 + word.name.length * 8 + 32;
+  return 20 + word.name.length * 8 + 36;
 }
 
-// generateInitialPositions and findOpenPosition removed — flow layout handles tile placement
+function generateInitialPositions() {
+  var cols = 5;
+  var hSpacing = 180;
+  var vSpacing = 60;
+  var startX = 40;
+  var startY = 20;
+  var x = startX;
+  var y = startY;
+  var colCount = 0;
+
+  for (var i = 0; i < BASE_WORDS.length; i++) {
+    gameState.positions[BASE_WORDS[i]] = { x: x, y: y };
+    colCount++;
+    if (colCount >= cols) {
+      colCount = 0;
+      x = startX;
+      y += vSpacing;
+    } else {
+      x += hSpacing;
+    }
+  }
+}
+
+function findOpenPosition(preferX, preferY, tileWidth) {
+  var tileH = 38;
+  var pad = 14;
+  var candidates = [{ x: preferX, y: preferY }];
+
+  for (var ring = 1; ring <= 10; ring++) {
+    var step = ring * 70;
+    for (var angle = 0; angle < 360; angle += 30) {
+      var rad = angle * Math.PI / 180;
+      candidates.push({
+        x: preferX + Math.cos(rad) * step,
+        y: preferY + Math.sin(rad) * step
+      });
+    }
+  }
+
+  for (var c = 0; c < candidates.length; c++) {
+    var cx = Math.max(20, candidates[c].x);
+    var cy = Math.max(20, candidates[c].y);
+    var clear = true;
+
+    for (var d = 0; d < gameState.discovered.length; d++) {
+      var existId = gameState.discovered[d];
+      var ePos = gameState.positions[existId];
+      if (!ePos) continue;
+      var eW = estimateTileWidth(existId);
+      if (cx < ePos.x + eW + pad && cx + tileWidth + pad > ePos.x &&
+          cy < ePos.y + tileH + pad && cy + tileH + pad > ePos.y) {
+        clear = false;
+        break;
+      }
+    }
+    if (clear) return { x: cx, y: cy };
+  }
+
+  // Fallback
+  var maxY = 100;
+  for (var d2 = 0; d2 < gameState.discovered.length; d2++) {
+    var p = gameState.positions[gameState.discovered[d2]];
+    if (p && p.y > maxY) maxY = p.y;
+  }
+  return { x: 40 + Math.random() * 200, y: maxY + 60 };
+}
 
 // ---------- STORAGE HELPERS ----------
 
@@ -1846,6 +1987,7 @@ function loadSettings() {
     settings.shakeOnMiss = saved.shakeOnMiss !== undefined ? saved.shakeOnMiss : true;
     settings.roastMessages = saved.roastMessages !== undefined ? saved.roastMessages : true;
     settings.sidebarCollapsed = saved.sidebarCollapsed !== undefined ? saved.sidebarCollapsed : false;
+    settings.view = saved.view || 'grid';
   }
   // On mobile, default to collapsed
   if (window.innerWidth <= 480 && !safeGetStorage('infiniteslang-settings')) {
@@ -1886,6 +2028,25 @@ function applySettings() {
     } else {
       board.classList.remove('sidebar-collapsed');
     }
+  }
+
+  applyView();
+}
+
+function toggleView() {
+  settings.view = settings.view === 'grid' ? 'canvas' : 'grid';
+  applyView();
+  saveSettings();
+  renderBoard();
+}
+
+function applyView() {
+  var board = document.getElementById('board');
+  if (!board) return;
+  if (settings.view === 'canvas') {
+    board.setAttribute('data-view', 'canvas');
+  } else {
+    board.removeAttribute('data-view');
   }
 }
 
@@ -1948,6 +2109,11 @@ function loadGame(index) {
     name: save.name
   };
   currentSaveIndex = index;
+
+  if (settings.view === 'canvas' && Object.keys(gameState.positions).length === 0) {
+    generateInitialPositions();
+  }
+
   renderBoard();
 }
 
@@ -1980,12 +2146,12 @@ function createTileElement(wordId) {
   div.className = 'tile';
   div.setAttribute('data-word', wordId);
   div.setAttribute('data-tier', word.tier);
+
   var nameSpan = document.createElement('span');
   nameSpan.className = 'tile-name';
   nameSpan.textContent = word.emoji + ' ' + word.name;
   div.appendChild(nameSpan);
 
-  // Show recipe under the tile for non-base words
   if (word.tier > 1) {
     var recipe = getRecipeFor(wordId);
     if (recipe) {
@@ -1997,6 +2163,22 @@ function createTileElement(wordId) {
     }
   }
 
+  // Line highlighting for canvas mode
+  div.addEventListener('mouseenter', function() {
+    if (settings.view !== 'canvas') return;
+    var lines = document.querySelectorAll('.connection-line');
+    lines.forEach(function(line) {
+      if (line.getAttribute('data-from') === wordId || line.getAttribute('data-to') === wordId) {
+        line.classList.add('highlight');
+      }
+    });
+  });
+  div.addEventListener('mouseleave', function() {
+    document.querySelectorAll('.connection-line.highlight').forEach(function(l) {
+      l.classList.remove('highlight');
+    });
+  });
+
   return div;
 }
 
@@ -2004,36 +2186,99 @@ function renderBoard() {
   var boardInner = document.getElementById('board-inner');
   if (!boardInner) return;
 
-  // Clear existing tiles and tier separators
   boardInner.querySelectorAll('.tile, .tier-separator').forEach(function(t) { t.remove(); });
 
-  // Add tiles grouped by tier
-  for (var tier = 1; tier <= 5; tier++) {
-    var tierWords = gameState.discovered.filter(function(id) {
-      return WORDS[id] && WORDS[id].tier === tier;
-    });
-    if (tierWords.length === 0) continue;
-
-    // Add tier separator
-    var sep = document.createElement('div');
-    sep.className = 'tier-separator';
-    sep.textContent = tier === 1 ? 'BASE WORDS' : 'TIER ' + tier + (tier >= 4 ? ' \u2605' : '');
-    boardInner.appendChild(sep);
-
-    tierWords.forEach(function(wordId) {
+  if (settings.view === 'canvas') {
+    // Canvas mode: absolute positioned tiles
+    gameState.discovered.forEach(function(wordId) {
       var tile = createTileElement(wordId);
+      if (tile && gameState.positions[wordId]) {
+        tile.style.position = 'absolute';
+        tile.style.left = gameState.positions[wordId].x + 'px';
+        tile.style.top = gameState.positions[wordId].y + 'px';
+      }
       if (tile) boardInner.appendChild(tile);
     });
+    renderConnections();
+  } else {
+    // Grid mode: flow layout grouped by tier
+    for (var tier = 1; tier <= 5; tier++) {
+      var tierWords = gameState.discovered.filter(function(id) {
+        return WORDS[id] && WORDS[id].tier === tier;
+      });
+      if (tierWords.length === 0) continue;
+
+      var sep = document.createElement('div');
+      sep.className = 'tier-separator';
+      var totalInTier = Object.keys(WORDS).filter(function(id) { return WORDS[id].tier === tier; }).length;
+      sep.textContent = (tier === 1 ? 'BASE WORDS' : 'TIER ' + tier) +
+        (tier >= 4 ? ' \u2605' : '') + ' \u2014 ' + tierWords.length + '/' + totalInTier;
+      boardInner.appendChild(sep);
+
+      tierWords.forEach(function(wordId) {
+        var tile = createTileElement(wordId);
+        if (tile) boardInner.appendChild(tile);
+      });
+    }
   }
 
   updateProgress();
-  renderSidebar();
-  if (isMobileView()) {
-    renderMobileGrid();
-  }
+  if (typeof renderSidebar === 'function') renderSidebar();
+  if (isMobileView() && typeof renderMobileGrid === 'function') renderMobileGrid();
 }
 
-// deriveConnections and renderConnections removed — SVG lines hidden in flow layout
+// ---------- CONNECTION LINES ----------
+
+var renderedConnectionKeys = {};
+
+function deriveConnections() {
+  var discovered = {};
+  gameState.discovered.forEach(function(id) { discovered[id] = true; });
+  var connections = [];
+  COMBOS.forEach(function(combo) {
+    if (discovered[combo.a] && discovered[combo.b] && discovered[combo.result]) {
+      connections.push({ from: combo.a, to: combo.result });
+      if (combo.a !== combo.b) {
+        connections.push({ from: combo.b, to: combo.result });
+      }
+    }
+  });
+  return connections;
+}
+
+function renderConnections() {
+  var svg = document.getElementById('connections-svg');
+  if (!svg || settings.view !== 'canvas') return;
+
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  var connections = deriveConnections();
+  connections.forEach(function(conn) {
+    var posA = gameState.positions[conn.from];
+    var posB = gameState.positions[conn.to];
+    if (!posA || !posB) return;
+
+    var wA = estimateTileWidth(conn.from) / 2;
+    var wB = estimateTileWidth(conn.to) / 2;
+
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', posA.x + wA);
+    line.setAttribute('y1', posA.y + 19);
+    line.setAttribute('x2', posB.x + wB);
+    line.setAttribute('y2', posB.y + 19);
+    line.setAttribute('data-from', conn.from);
+    line.setAttribute('data-to', conn.to);
+    line.classList.add('connection-line');
+
+    var key = [conn.from, conn.to].sort().join('|');
+    if (!renderedConnectionKeys[key]) {
+      line.classList.add('animated');
+      renderedConnectionKeys[key] = true;
+    }
+
+    svg.appendChild(line);
+  });
+}
 
 function updateProgress() {
   var totalWords = Object.keys(WORDS).length;
@@ -2211,31 +2456,54 @@ function initInteraction() {
   });
 }
 
+var lastClickTime = 0;
+var lastClickWord = null;
+
 function onDesktopWordClick(wordId) {
-  if (!desktopSelectedA) {
+  var now = Date.now();
+
+  // Double-click detection
+  if (lastClickWord === wordId && now - lastClickTime < 400) {
+    // Double-click: lock into slot A immediately
     desktopSelectedA = wordId;
-    updateDesktopSelection();
-    updateDesktopMergeBar();
-  } else if (desktopSelectedA === wordId) {
-    // Same word clicked - try self-merge or deselect
+    desktopSelectedB = null;
+
+    // Check self-merge
     var selfResult = lookupCombo(wordId, wordId);
-    if (selfResult) {
+    if (selfResult && gameState.discovered.indexOf(selfResult) === -1) {
       desktopSelectedB = wordId;
+      updateDesktopSelection();
       updateDesktopMergeBar();
-      // Auto-merge
       setTimeout(function() {
         attemptMerge(desktopSelectedA, desktopSelectedB);
         clearDesktopSelection();
         renderBoard();
       }, 200);
     } else {
-      clearDesktopSelection();
+      updateDesktopSelection();
+      updateDesktopMergeBar();
+      showToast(WORDS[wordId].emoji + ' ' + WORDS[wordId].name + ' locked \u2014 click another to merge');
     }
+
+    lastClickWord = null;
+    lastClickTime = 0;
+    return;
+  }
+
+  lastClickWord = wordId;
+  lastClickTime = now;
+
+  // Single click logic
+  if (!desktopSelectedA) {
+    desktopSelectedA = wordId;
+    updateDesktopSelection();
+    updateDesktopMergeBar();
+  } else if (desktopSelectedA === wordId) {
+    clearDesktopSelection();
   } else {
     desktopSelectedB = wordId;
     updateDesktopSelection();
     updateDesktopMergeBar();
-    // Auto-merge after brief delay
     setTimeout(function() {
       attemptMerge(desktopSelectedA, desktopSelectedB);
       clearDesktopSelection();
@@ -2385,6 +2653,18 @@ function shakeTile(wordId) {
 function discoverWord(resultId, parentA, parentB) {
   gameState.discovered.push(resultId);
   gameState.discoveryOrder.push(resultId);
+
+  if (settings.view === 'canvas') {
+    var posA = gameState.positions[parentA];
+    var posB = gameState.positions[parentB];
+    if (posA && posB) {
+      var preferX = parentA === parentB ? posA.x + 50 : (posA.x + posB.x) / 2;
+      var preferY = (parentA === parentB ? posA.y : Math.max(posA.y, posB.y)) + 70;
+      var newW = estimateTileWidth(resultId);
+      var pos = findOpenPosition(preferX, preferY, newW);
+      gameState.positions[resultId] = pos;
+    }
+  }
 
   var word = WORDS[resultId];
   var tier = word.tier;
@@ -2986,6 +3266,116 @@ function createMobileWord(wordId, isDiscovered) {
   return el;
 }
 
+// ---------- CANVAS DRAG-AND-DROP ----------
+
+var dragState = null;
+
+function initCanvasDrag() {
+  var board = document.getElementById('board');
+  if (!board) return;
+
+  board.addEventListener('pointerdown', function(e) {
+    if (settings.view !== 'canvas') return;
+    var tile = e.target.closest('.tile');
+    if (!tile) return;
+    if (e.pointerType === 'touch') return; // mobile uses tap-tap
+
+    var wordId = tile.getAttribute('data-word');
+    var pos = gameState.positions[wordId];
+    if (!pos) return;
+
+    var rect = tile.getBoundingClientRect();
+    var boardRect = document.getElementById('board-inner').getBoundingClientRect();
+
+    dragState = {
+      wordId: wordId,
+      element: tile,
+      startX: pos.x,
+      startY: pos.y,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      boardLeft: boardRect.left,
+      boardTop: boardRect.top,
+      moved: false
+    };
+    tile.setPointerCapture(e.pointerId);
+    tile.classList.add('dragging');
+  });
+
+  board.addEventListener('pointermove', function(e) {
+    if (!dragState || settings.view !== 'canvas') return;
+
+    var boardInner = document.getElementById('board-inner');
+    var boardRect = boardInner.getBoundingClientRect();
+    var newX = e.clientX - boardRect.left - dragState.offsetX;
+    var newY = e.clientY - boardRect.top - dragState.offsetY;
+
+    dragState.element.style.left = newX + 'px';
+    dragState.element.style.top = newY + 'px';
+    gameState.positions[dragState.wordId] = { x: newX, y: newY };
+    dragState.moved = true;
+
+    // Update connection lines while dragging
+    renderConnections();
+
+    // Show drop target highlight
+    document.querySelectorAll('.tile.drop-target').forEach(function(t) { t.classList.remove('drop-target'); });
+    var target = getCanvasDropTarget(e.clientX, e.clientY, dragState.element);
+    if (target) target.classList.add('drop-target');
+  });
+
+  board.addEventListener('pointerup', function(e) {
+    if (!dragState || settings.view !== 'canvas') return;
+
+    dragState.element.classList.remove('dragging');
+    document.querySelectorAll('.tile.drop-target').forEach(function(t) { t.classList.remove('drop-target'); });
+
+    var target = getCanvasDropTarget(e.clientX, e.clientY, dragState.element);
+    if (target && dragState.moved) {
+      var targetWord = target.getAttribute('data-word');
+      // Return tile to original position
+      gameState.positions[dragState.wordId] = { x: dragState.startX, y: dragState.startY };
+      dragState.element.style.left = dragState.startX + 'px';
+      dragState.element.style.top = dragState.startY + 'px';
+      attemptMerge(dragState.wordId, targetWord);
+      renderBoard();
+    } else if (!dragState.moved) {
+      // It was a click, not a drag — handle as selection
+      gameState.positions[dragState.wordId] = { x: dragState.startX, y: dragState.startY };
+      dragState.element.style.left = dragState.startX + 'px';
+      dragState.element.style.top = dragState.startY + 'px';
+      onDesktopWordClick(dragState.wordId);
+    }
+
+    saveGame();
+    renderConnections();
+    dragState = null;
+  });
+
+  board.addEventListener('pointercancel', function() {
+    if (dragState) {
+      dragState.element.classList.remove('dragging');
+      gameState.positions[dragState.wordId] = { x: dragState.startX, y: dragState.startY };
+      dragState.element.style.left = dragState.startX + 'px';
+      dragState.element.style.top = dragState.startY + 'px';
+      dragState = null;
+    }
+  });
+}
+
+function getCanvasDropTarget(clientX, clientY, excludeEl) {
+  var tiles = document.querySelectorAll('#board-inner .tile');
+  for (var i = 0; i < tiles.length; i++) {
+    if (tiles[i] === excludeEl) continue;
+    var rect = tiles[i].getBoundingClientRect();
+    if (clientX >= rect.left && clientX <= rect.right &&
+        clientY >= rect.top && clientY <= rect.bottom) {
+      return tiles[i];
+    }
+  }
+  return null;
+}
+
 // ---------- BOOT SEQUENCE ----------
 
 function init() {
@@ -2993,9 +3383,15 @@ function init() {
   initModals();
   initInteraction();
   initDesktopMergeBar();
+  initCanvasDrag();
   initSidebar();
   initHints();
   initMobile();
+
+  var viewToggle = document.getElementById('view-toggle');
+  if (viewToggle) {
+    viewToggle.addEventListener('click', toggleView);
+  }
 
   // Try to load most recent save
   var saves = getSaves();
