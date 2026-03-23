@@ -1430,6 +1430,15 @@ body {
     background: var(--header-bg);
   }
 
+  .merge-slot.locked {
+    border-color: var(--accent-color);
+    background: var(--accent-color);
+    color: #fff;
+    opacity: 1;
+    font-weight: 600;
+    border-style: solid;
+  }
+
   .merge-plus {
     font-size: 18px;
     font-weight: 700;
@@ -1586,7 +1595,7 @@ body {
       <button class="mobile-tab" data-tier="5">T5</button>
     </div>
     <div class="mobile-merge-bar" id="mobile-merge-bar">
-      <span class="merge-slot" id="merge-slot-a">Tap a word...</span>
+      <span class="merge-slot" id="merge-slot-a">Tap or double-tap to lock...</span>
       <span class="merge-plus">+</span>
       <span class="merge-slot" id="merge-slot-b">...</span>
       <button class="merge-go" id="merge-go" disabled>Merge</button>
@@ -3236,13 +3245,29 @@ function updateMergeBar() {
   var mergeBtn = document.getElementById('merge-go');
 
   if (slotA) {
+    slotA.classList.remove('filled', 'locked');
+    slotA.innerHTML = '';
     if (mobileSelectedA) {
       var wordA = WORDS[mobileSelectedA];
-      slotA.textContent = wordA.emoji + ' ' + wordA.name;
-      slotA.classList.add('filled');
+      slotA.appendChild(document.createTextNode(wordA.emoji + ' ' + wordA.name));
+      if (mobileLocked) {
+        slotA.classList.add('locked');
+        var xBtn = document.createElement('span');
+        xBtn.className = 'slot-clear';
+        xBtn.textContent = '\u2715';
+        xBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          clearMobileSelection();
+          mobileLocked = false;
+          updateMergeBar();
+          updateMobileSelection();
+        });
+        slotA.appendChild(xBtn);
+      } else {
+        slotA.classList.add('filled');
+      }
     } else {
-      slotA.textContent = 'Tap a word...';
-      slotA.classList.remove('filled');
+      slotA.textContent = 'Tap or double-tap to lock...';
     }
   }
 
@@ -3262,28 +3287,101 @@ function updateMergeBar() {
   }
 }
 
+var mobileLastTapWord = null;
+var mobileLastTapTime = 0;
+var mobileLocked = false;
+var mobilePendingMerge = null;
+
 function onMobileWordTap(wordId) {
-  if (!mobileSelectedA) {
-    mobileSelectedA = wordId;
-  } else if (mobileSelectedA === wordId) {
-    // Tapped same word — either self-merge attempt or deselect
-    var selfResult = lookupCombo(wordId, wordId);
-    if (selfResult) {
-      mobileSelectedB = wordId;
-    } else {
-      mobileSelectedA = null; // deselect
-    }
-  } else if (!mobileSelectedB) {
-    mobileSelectedB = wordId;
-  } else {
-    // Both slots full — replace slot A with new selection, clear B
+  var now = Date.now();
+
+  // Cancel pending merge timeout
+  if (mobilePendingMerge) {
+    clearTimeout(mobilePendingMerge);
+    mobilePendingMerge = null;
+  }
+
+  // Double-tap detection (600ms window)
+  if (mobileLastTapWord === wordId && now - mobileLastTapTime < 600) {
     mobileSelectedA = wordId;
     mobileSelectedB = null;
+    mobileLocked = true;
+
+    // Self-merge check
+    var selfResult = lookupCombo(wordId, wordId);
+    if (selfResult && gameState.discovered.indexOf(selfResult) === -1) {
+      mobileSelectedB = wordId;
+      updateMergeBar();
+      updateMobileSelection();
+      mobilePendingMerge = setTimeout(function() {
+        attemptMerge(mobileSelectedA, mobileSelectedB);
+        clearMobileSelection();
+        mobileLocked = false;
+        renderMobileGrid();
+      }, 400);
+    } else {
+      updateMergeBar();
+      updateMobileSelection();
+      showToast(WORDS[wordId].emoji + ' ' + WORDS[wordId].name + ' locked', 2000);
+    }
+
+    mobileLastTapWord = null;
+    mobileLastTapTime = 0;
+    return;
+  }
+
+  mobileLastTapWord = wordId;
+  mobileLastTapTime = now;
+
+  // Single tap logic
+  if (!mobileSelectedA) {
+    mobileSelectedA = wordId;
+    mobileLocked = false;
+  } else if (mobileSelectedA === wordId && !mobileLocked) {
+    // Tap same word (not locked) — deselect
+    mobileSelectedA = null;
+  } else if (mobileSelectedA === wordId && mobileLocked) {
+    // Tap locked word — unlock
+    clearMobileSelection();
+    mobileLocked = false;
+    updateMergeBar();
+    updateMobileSelection();
+    return;
+  } else {
+    // Different word — fill slot B and merge
+    mobileSelectedB = wordId;
+    updateMergeBar();
+    updateMobileSelection();
+    mobilePendingMerge = setTimeout(function() {
+      var wordA = mobileSelectedA;
+      var wordB = mobileSelectedB;
+      var result = lookupCombo(wordA, wordB);
+      var alreadyFound = result && gameState.discovered.indexOf(result) !== -1;
+
+      attemptMerge(wordA, wordB);
+
+      if (result && !alreadyFound) {
+        clearMobileSelection();
+        mobileLocked = false;
+        renderMobileGrid();
+      } else if (mobileLocked) {
+        // Failed merge, keep lock
+        mobileSelectedB = null;
+        updateMergeBar();
+        updateMobileSelection();
+      } else {
+        clearMobileSelection();
+        renderMobileGrid();
+      }
+    }, 300);
+    return;
   }
 
   updateMergeBar();
+  updateMobileSelection();
+}
 
-  // Update visual selection on grid
+function updateMobileSelection() {
   document.querySelectorAll('.mobile-word.mobile-selected').forEach(function(el) {
     el.classList.remove('mobile-selected');
   });
@@ -3294,15 +3392,6 @@ function onMobileWordTap(wordId) {
   if (mobileSelectedB && mobileSelectedB !== mobileSelectedA) {
     var elB = document.querySelector('.mobile-word[data-word="' + mobileSelectedB + '"]');
     if (elB) elB.classList.add('mobile-selected');
-  }
-
-  // Auto-merge when both selected
-  if (mobileSelectedA && mobileSelectedB) {
-    setTimeout(function() {
-      attemptMerge(mobileSelectedA, mobileSelectedB);
-      clearMobileSelection();
-      renderMobileGrid();
-    }, 300);
   }
 }
 
