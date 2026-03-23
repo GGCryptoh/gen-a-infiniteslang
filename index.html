@@ -2497,27 +2497,37 @@ function initInteraction() {
 
 var lastClickTime = 0;
 var lastClickWord = null;
+var isLocked = false; // true when double-click locked a word
+var pendingMergeTimeout = null;
 
 function onDesktopWordClick(wordId) {
   var now = Date.now();
 
+  // Cancel any pending auto-merge (prevents race with double-click)
+  if (pendingMergeTimeout) {
+    clearTimeout(pendingMergeTimeout);
+    pendingMergeTimeout = null;
+  }
+
   // Double-click detection
   if (lastClickWord === wordId && now - lastClickTime < 400) {
-    // Double-click: lock into slot A immediately
+    // Double-click: lock into slot A
     desktopSelectedA = wordId;
     desktopSelectedB = null;
+    isLocked = true;
 
-    // Check self-merge
+    // Check self-merge (W+W=Dub)
     var selfResult = lookupCombo(wordId, wordId);
     if (selfResult && gameState.discovered.indexOf(selfResult) === -1) {
       desktopSelectedB = wordId;
       updateDesktopSelection();
       updateDesktopMergeBar();
-      setTimeout(function() {
+      pendingMergeTimeout = setTimeout(function() {
         attemptMerge(desktopSelectedA, desktopSelectedB);
         clearDesktopSelection();
+        isLocked = false;
         renderBoard();
-      }, 200);
+      }, 400);
     } else {
       updateDesktopSelection();
       updateDesktopMergeBar();
@@ -2534,18 +2544,27 @@ function onDesktopWordClick(wordId) {
 
   // Single click logic
   if (!desktopSelectedA) {
+    // Nothing selected — select this word
     desktopSelectedA = wordId;
+    isLocked = false;
     updateDesktopSelection();
     updateDesktopMergeBar();
-  } else if (desktopSelectedA === wordId) {
+  } else if (desktopSelectedA === wordId && !isLocked) {
+    // Clicked the same word again (not locked) — deselect
     clearDesktopSelection();
+    isLocked = false;
+  } else if (desktopSelectedA === wordId && isLocked) {
+    // Clicked the locked word — ignore (use X button to clear)
+    return;
   } else {
+    // Different word — fill slot B and merge
     desktopSelectedB = wordId;
     updateDesktopSelection();
     updateDesktopMergeBar();
-    setTimeout(function() {
+    pendingMergeTimeout = setTimeout(function() {
       attemptMerge(desktopSelectedA, desktopSelectedB);
       clearDesktopSelection();
+      isLocked = false;
       renderBoard();
     }, 300);
   }
