@@ -238,8 +238,8 @@ body {
 /* ── Board ──────────────────────────────────────────────────── */
 .board {
   position: relative;
-  height: calc(100vh - 48px - 36px);
-  height: calc(100dvh - 48px - 36px);
+  height: calc(100vh - 48px - 48px);
+  height: calc(100dvh - 48px - 48px);
   margin-top: 48px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -271,13 +271,14 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 36px;
+  height: 48px;
   background: var(--header-bg);
   border-top: 1px solid var(--header-border);
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 20px;
+  gap: 16px;
   z-index: 100;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -306,13 +307,12 @@ body {
 /* ── Tiles ──────────────────────────────────────────────────── */
 .tile {
   position: relative;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: var(--tile-radius);
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  white-space: nowrap;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   font-family: var(--tile-font);
   z-index: 10;
@@ -320,10 +320,46 @@ body {
   color: var(--tile-text);
   border: 1px solid var(--tile-border);
   transition: box-shadow 0.2s ease, transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tile-name {
+  white-space: nowrap;
+}
+
+.tile-recipe {
+  font-size: 10px;
+  opacity: 0.45;
+  white-space: nowrap;
+  font-weight: 400;
 }
 
 .tile:hover {
-  z-index: 11;
+  z-index: 50;
+}
+
+/* Recipe tooltip on hover for discovered T2+ words */
+.tile[data-recipe]:hover::after {
+  content: attr(data-recipe);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  background: var(--modal-bg);
+  color: var(--text);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.95;
 }
 
 .tile.selected {
@@ -1723,6 +1759,19 @@ var BASE_WORDS = Object.keys(WORDS).filter(function(id) {
   return WORDS[id].tier === 1;
 });
 
+function getRecipeFor(wordId) {
+  for (var i = 0; i < COMBOS.length; i++) {
+    if (COMBOS[i].result === wordId) {
+      var a = WORDS[COMBOS[i].a];
+      var b = WORDS[COMBOS[i].b];
+      if (a && b) {
+        return a.emoji + ' ' + a.name + ' + ' + b.emoji + ' ' + b.name;
+      }
+    }
+  }
+  return null;
+}
+
 // ---------- STATE ----------
 
 var gameState = {
@@ -1931,7 +1980,22 @@ function createTileElement(wordId) {
   div.className = 'tile';
   div.setAttribute('data-word', wordId);
   div.setAttribute('data-tier', word.tier);
-  div.textContent = word.emoji + ' ' + word.name;
+  var nameSpan = document.createElement('span');
+  nameSpan.className = 'tile-name';
+  nameSpan.textContent = word.emoji + ' ' + word.name;
+  div.appendChild(nameSpan);
+
+  // Show recipe under the tile for non-base words
+  if (word.tier > 1) {
+    var recipe = getRecipeFor(wordId);
+    if (recipe) {
+      div.setAttribute('data-recipe', recipe);
+      var recipeSpan = document.createElement('span');
+      recipeSpan.className = 'tile-recipe';
+      recipeSpan.textContent = recipe;
+      div.appendChild(recipeSpan);
+    }
+  }
 
   return div;
 }
