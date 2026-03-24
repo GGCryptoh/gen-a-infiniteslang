@@ -1811,7 +1811,7 @@ var WORDS = {
   'brainrot':    { emoji: '\u{1F9E0}', tier: 1, name: 'Brainrot' },
   'aura':        { emoji: '\u2728',    tier: 1, name: 'Aura' },
 
-  // Tier 2 (26 words)
+  // Tier 2 (34 words)
   'alpha':              { emoji: '\u{1F981}', tier: 2, name: 'Alpha' },
   'catfish':            { emoji: '\u{1F41F}', tier: 2, name: 'Catfish' },
   'main-character':     { emoji: '\u{1F3AC}', tier: 2, name: 'Main Character' },
@@ -1838,6 +1838,15 @@ var WORDS = {
   'era':                { emoji: '\u{1F300}', tier: 2, name: 'Era' },
   'andrew-tate':        { emoji: '\u{1F576}\uFE0F', tier: 2, name: 'Andrew Tate' },
   'fact-check':         { emoji: '\u{1F4CB}', tier: 2, name: 'Fact Check' },
+  'ate-and-left':       { emoji: '\u{1F6AA}', tier: 3, name: 'Ate and Left' },
+  'lone-wolf':          { emoji: '\u{1F43A}', tier: 2, name: 'Lone Wolf' },
+  'gaslight':           { emoji: '\u{1F4A1}', tier: 2, name: 'Gaslight' },
+  'clutch':             { emoji: '\u{1F3AF}', tier: 2, name: 'Clutch' },
+  'it-girl':            { emoji: '\u{1F478}', tier: 2, name: 'It Girl' },
+  'down-bad':           { emoji: '\u{1F4C9}', tier: 2, name: 'Down Bad' },
+  'zombie':             { emoji: '\u{1F9DF}', tier: 2, name: 'Zombie' },
+  'fake':               { emoji: '\u{1F3AD}', tier: 2, name: 'Fake' },
+  'robbery':            { emoji: '\u{1F4B0}', tier: 2, name: 'Robbery' },
 
   // Tier 3 (16 words)
   'giga-chad':          { emoji: '\u{1F5FF}', tier: 3, name: 'Giga Chad' },
@@ -1864,6 +1873,12 @@ var WORDS = {
   'living-rent-free':   { emoji: '\u{1F3E0}', tier: 3, name: 'Living Rent Free' },
   'understood-the-assignment': { emoji: '\u{1F4DD}', tier: 3, name: 'Understood the Assignment' },
   'snatched':           { emoji: '\u{1F48E}\u{1F525}', tier: 3, name: 'Snatched' },
+  'block':              { emoji: '\u{1F6AB}', tier: 3, name: 'Block' },
+  'ceo':                { emoji: '\u{1F4BC}', tier: 3, name: 'CEO' },
+  'florida-man':        { emoji: '\u{1F40A}', tier: 3, name: 'Florida Man' },
+  'simp':               { emoji: '\u{1F97A}', tier: 3, name: 'Simp' },
+  'built-different':    { emoji: '\u{1F3D7}\uFE0F', tier: 3, name: 'Built Different' },
+  'baddie':             { emoji: '\u{1F485}', tier: 3, name: 'Baddie' },
 
   // Tier 4 cross-tier (T3 + T1 = new T4)
   'delulu-is-the-solulu': { emoji: '\u{1F52E}', tier: 4, name: 'Delulu is the Solulu' },
@@ -1877,13 +1892,17 @@ var WORDS = {
   'toxic':        { emoji: '\u2620\uFE0F', tier: 4, name: 'Toxic' },
   'gen-alpha':    { emoji: '\u{1F476}\u{1F4F1}', tier: 4, name: 'Gen Alpha' },
   'iconic':       { emoji: '\u{1F3DB}\uFE0F', tier: 4, name: 'Iconic' },
+  'mogul':        { emoji: '\u{1F3F0}', tier: 4, name: 'Mogul' },
+  'unhinged':     { emoji: '\u{1F92A}', tier: 4, name: 'Unhinged' },
+  'queen':        { emoji: '\u{1F451}', tier: 4, name: 'Queen' },
 
-  // Tier 5 (5 words)
+  // Tier 5 (5 + 1 = 6 words)
   'goat':           { emoji: '\u{1F410}', tier: 5, name: 'GOAT' },
   'redemption-arc': { emoji: '\u{1F305}', tier: 5, name: 'Redemption Arc' },
   'brainrot-king':  { emoji: '\u{1F451}\u{1F9E0}', tier: 5, name: 'Brainrot King' },
   'legend':         { emoji: '\u2B50',    tier: 5, name: 'Legend' },
-  'touch-grass':    { emoji: '\u{1F331}', tier: 5, name: 'Touch Grass' }
+  'touch-grass':    { emoji: '\u{1F331}', tier: 5, name: 'Touch Grass' },
+  'power-couple':   { emoji: '\u{1F4AA}\u{1F451}', tier: 5, name: 'Power Couple' }
 };
 
 var COMBOS = [
@@ -1914,6 +1933,14 @@ var COMBOS = [
   { a: 'slay',      b: 'vibe',     result: 'era' },
   { a: 'sigma',     b: 'brainrot', result: 'andrew-tate' },
   { a: 'ratio',     b: 'cap',      result: 'fact-check' },
+  { a: 'sigma',     b: 'npc',      result: 'lone-wolf' },
+  { a: 'cap',       b: 'delulu',   result: 'gaslight' },
+  { a: 'bet',       b: 'w',        result: 'clutch' },
+  { a: 'aura',      b: 'slay',     result: 'it-girl' },
+  { a: 'l',         b: 'l',        result: 'down-bad' },
+  { a: 'brainrot',  b: 'npc',      result: 'zombie' },
+  { a: 'ick',       b: 'cap',      result: 'fake' },
+  { a: 'fanum-tax', b: 'l',        result: 'robbery' },
 
   // Tier 3 combos (16 + 6 cross-tier = 22)
   { a: 'alpha',              b: 'unspoken-rizz',      result: 'giga-chad' },
@@ -1940,6 +1967,13 @@ var COMBOS = [
   { a: 'influencer',         b: 'brainrot',   result: 'living-rent-free' },
   { a: 'ate',                b: 'sigma',      result: 'understood-the-assignment' },
   { a: 'drip',               b: 'slay',       result: 'snatched' },
+  { a: 'ate',                b: 'vibe',       result: 'ate-and-left' },
+  { a: 'catfish',            b: 'red-flag',   result: 'block' },
+  { a: 'alpha',              b: 'ate',        result: 'ceo' },
+  { a: 'ohio',               b: 'zombie',     result: 'florida-man' },
+  { a: 'down-bad',           b: 'situationship', result: 'simp' },
+  { a: 'clutch',             b: 'finesse',    result: 'built-different' },
+  { a: 'it-girl',            b: 'glow-up',    result: 'baddie' },
 
   // Tier 4 cross-tier combos (T3 + T1 = new T4)
   { a: 'pick-me',            b: 'delulu',     result: 'delulu-is-the-solulu' },
@@ -1953,13 +1987,17 @@ var COMBOS = [
   { a: 'situationship',    b: 'its-giving',    result: 'toxic' },
   { a: 'skibidi-toilet',   b: 'ipad-kid',      result: 'gen-alpha' },
   { a: 'no-notes',         b: 'drip',          result: 'iconic' },
+  { a: 'ceo',              b: 'built-different', result: 'mogul' },
+  { a: 'florida-man',      b: 'ipad-kid',      result: 'unhinged' },
+  { a: 'baddie',           b: 'iconic',        result: 'queen' },
 
   // Tier 5 combos (5)
   { a: 'final-form',    b: 'iconic',          result: 'goat' },
   { a: 'cancelled',     b: 'toxic',           result: 'redemption-arc' },
   { a: 'gen-alpha',     b: 'mr-beast',        result: 'brainrot-king' },
   { a: 'goat',          b: 'redemption-arc',  result: 'legend' },
-  { a: 'legend',        b: 'brainrot-king',   result: 'touch-grass' }
+  { a: 'legend',        b: 'brainrot-king',   result: 'touch-grass' },
+  { a: 'mogul',         b: 'queen',           result: 'power-couple' }
 ];
 
 var ROAST_MESSAGES = [
@@ -2686,11 +2724,48 @@ function onDesktopWordClick(wordId) {
     updateDesktopSelection();
     updateDesktopMergeBar();
   } else if (desktopSelectedA === wordId && !isLocked) {
-    // Clicked the same word again (not locked) — deselect
+    // Clicked the same word again (not locked) — check for self-merge, else deselect
+    var selfCombo = lookupCombo(wordId, wordId);
+    if (selfCombo) {
+      // Self-merge exists — fill slot B and attempt merge
+      desktopSelectedB = wordId;
+      updateDesktopSelection();
+      updateDesktopMergeBar();
+      pendingMergeTimeout = setTimeout(function() {
+        attemptMerge(wordId, wordId);
+        clearDesktopSelection();
+        isLocked = false;
+        renderBoard();
+      }, 300);
+      return;
+    }
     clearDesktopSelection();
     isLocked = false;
   } else if (desktopSelectedA === wordId && isLocked) {
-    // Clicked the locked word — unlock it
+    // Clicked the locked word — check for self-merge, else unlock
+    var selfComboLocked = lookupCombo(wordId, wordId);
+    if (selfComboLocked) {
+      // Self-merge exists — fill slot B and attempt merge
+      desktopSelectedB = wordId;
+      updateDesktopSelection();
+      updateDesktopMergeBar();
+      pendingMergeTimeout = setTimeout(function() {
+        var alreadyFound = selfComboLocked && gameState.discovered.indexOf(selfComboLocked) !== -1;
+        attemptMerge(wordId, wordId);
+        if (selfComboLocked && !alreadyFound) {
+          clearDesktopSelection();
+          isLocked = false;
+          renderBoard();
+        } else if (isLocked) {
+          desktopSelectedB = null;
+          updateDesktopSelection();
+          updateDesktopMergeBar();
+        } else {
+          clearDesktopSelection();
+        }
+      }, 300);
+      return;
+    }
     clearDesktopSelection();
     isLocked = false;
   } else {
@@ -3539,10 +3614,45 @@ function onMobileWordTap(wordId) {
     mobileSelectedA = wordId;
     mobileLocked = false;
   } else if (mobileSelectedA === wordId && !mobileLocked) {
-    // Tap same word (not locked) — deselect
+    // Tap same word (not locked) — check for self-merge, else deselect
+    var selfComboM = lookupCombo(wordId, wordId);
+    if (selfComboM) {
+      mobileSelectedB = wordId;
+      updateMergeBar();
+      updateMobileSelection();
+      mobilePendingMerge = setTimeout(function() {
+        attemptMerge(wordId, wordId);
+        clearMobileSelection();
+        mobileLocked = false;
+        renderMobileBoard();
+      }, 300);
+      return;
+    }
     mobileSelectedA = null;
   } else if (mobileSelectedA === wordId && mobileLocked) {
-    // Tap locked word — unlock
+    // Tap locked word — check for self-merge, else unlock
+    var selfComboML = lookupCombo(wordId, wordId);
+    if (selfComboML) {
+      mobileSelectedB = wordId;
+      updateMergeBar();
+      updateMobileSelection();
+      mobilePendingMerge = setTimeout(function() {
+        var alreadyFoundM = selfComboML && gameState.discovered.indexOf(selfComboML) !== -1;
+        attemptMerge(wordId, wordId);
+        if (selfComboML && !alreadyFoundM) {
+          clearMobileSelection();
+          mobileLocked = false;
+          renderMobileBoard();
+        } else if (mobileLocked) {
+          mobileSelectedB = null;
+          updateMergeBar();
+          updateMobileSelection();
+        } else {
+          clearMobileSelection();
+        }
+      }, 300);
+      return;
+    }
     clearMobileSelection();
     mobileLocked = false;
     updateMergeBar();
