@@ -1062,6 +1062,71 @@ body {
   animation: confetti-fly 1s ease-out forwards;
 }
 
+/* ── Hover Tooltip Card ─────────────────────────────────────── */
+.word-tooltip {
+  position: fixed;
+  z-index: 300;
+  pointer-events: none;
+  background: var(--modal-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 14px;
+  width: 240px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.word-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.word-tooltip-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.word-tooltip-gen {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.word-tooltip-gen[data-gen="Gen Alpha"] {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+}
+
+.word-tooltip-gen[data-gen="Gen Z"] {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+.word-tooltip-gen[data-gen="Millennial+"] {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fcd34d;
+}
+
+.word-tooltip-gen[data-gen="Internet"] {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+.word-tooltip-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  opacity: 0.75;
+}
+
 /* ── Discovery Popup ────────────────────────────────────────── */
 .discovery-overlay {
   position: fixed;
@@ -1742,6 +1807,13 @@ body {
     <button class="hint-dismiss" id="hint-dismiss">Got it</button>
   </div>
 
+  <!-- Word Tooltip -->
+  <div class="word-tooltip" id="word-tooltip">
+    <div class="word-tooltip-name" id="tooltip-name"></div>
+    <span class="word-tooltip-gen" id="tooltip-gen"></span>
+    <div class="word-tooltip-desc" id="tooltip-desc"></div>
+  </div>
+
   <!-- Settings Modal -->
   <div class="modal-overlay" id="settings-modal">
     <div class="modal">
@@ -1818,119 +1890,119 @@ body {
 
 var WORDS = {
   // Tier 1 (20 base words)
-  'rizz':        { emoji: '\u{1F60F}', tier: 1, name: 'Rizz' },
-  'skibidi':     { emoji: '\u{1F6BD}', tier: 1, name: 'Skibidi' },
-  'sigma':       { emoji: '\u{1F43A}', tier: 1, name: 'Sigma' },
-  'cap':         { emoji: '\u{1F9E2}', tier: 1, name: 'Cap' },
-  'bussin':      { emoji: '\u{1F525}', tier: 1, name: 'Bussin' },
-  'slay':        { emoji: '\u{1F485}', tier: 1, name: 'Slay' },
-  'sus':         { emoji: '\u{1F440}', tier: 1, name: 'Sus' },
-  'bet':         { emoji: '\u{1F91D}', tier: 1, name: 'Bet' },
-  'gyatt':       { emoji: '\u{1F633}', tier: 1, name: 'Gyatt' },
-  'mewing':      { emoji: '\u{1F92B}', tier: 1, name: 'Mewing' },
-  'w':           { emoji: '\u2705',    tier: 1, name: 'W' },
-  'l':           { emoji: '\u274C',    tier: 1, name: 'L' },
-  'fanum-tax':   { emoji: '\u{1F354}', tier: 1, name: 'Fanum Tax' },
-  'delulu':      { emoji: '\u{1F984}', tier: 1, name: 'Delulu' },
-  'vibe':        { emoji: '\u{1F30A}', tier: 1, name: 'Vibe' },
-  'npc':         { emoji: '\u{1F916}', tier: 1, name: 'NPC' },
-  'ick':         { emoji: '\u{1F922}', tier: 1, name: 'Ick' },
-  'ratio':       { emoji: '\u{1F4C9}', tier: 1, name: 'Ratio' },
-  'brainrot':    { emoji: '\u{1F9E0}', tier: 1, name: 'Brainrot' },
-  'aura':        { emoji: '\u2728',    tier: 1, name: 'Aura' },
+  'rizz':        { emoji: '\u{1F60F}', tier: 1, name: 'Rizz', gen: 'Gen Z', desc: 'Charm or attractiveness, especially the ability to flirt effortlessly' },
+  'skibidi':     { emoji: '\u{1F6BD}', tier: 1, name: 'Skibidi', gen: 'Gen Alpha', desc: 'Nonsense word from a viral YouTube series; used as a random exclamation' },
+  'sigma':       { emoji: '\u{1F43A}', tier: 1, name: 'Sigma', gen: 'Gen Z', desc: 'An independent lone-wolf type who plays by their own rules' },
+  'cap':         { emoji: '\u{1F9E2}', tier: 1, name: 'Cap', gen: 'Gen Z', desc: 'A lie or exaggeration. "No cap" means for real' },
+  'bussin':      { emoji: '\u{1F525}', tier: 1, name: 'Bussin', gen: 'Gen Z', desc: 'Really good, usually about food but can be anything amazing' },
+  'slay':        { emoji: '\u{1F485}', tier: 1, name: 'Slay', gen: 'Gen Z', desc: 'To do something exceptionally well; to kill it' },
+  'sus':         { emoji: '\u{1F440}', tier: 1, name: 'Sus', gen: 'Gen Z', desc: 'Suspicious or shady, popularized by Among Us' },
+  'bet':         { emoji: '\u{1F91D}', tier: 1, name: 'Bet', gen: 'Gen Z', desc: 'Agreement or confirmation, like saying "okay, deal"' },
+  'gyatt':       { emoji: '\u{1F633}', tier: 1, name: 'Gyatt', gen: 'Gen Alpha', desc: 'Exclamation of surprise or admiration, often about appearance' },
+  'mewing':      { emoji: '\u{1F92B}', tier: 1, name: 'Mewing', gen: 'Gen Alpha', desc: 'A jawline exercise trend involving tongue posture against the roof of your mouth' },
+  'w':           { emoji: '\u2705',    tier: 1, name: 'W', gen: 'Gen Z', desc: 'A win or something positive' },
+  'l':           { emoji: '\u274C',    tier: 1, name: 'L', gen: 'Gen Z', desc: 'A loss or something embarrassing' },
+  'fanum-tax':   { emoji: '\u{1F354}', tier: 1, name: 'Fanum Tax', gen: 'Gen Alpha', desc: 'When someone takes a bite of your food without asking, from streamer Fanum' },
+  'delulu':      { emoji: '\u{1F984}', tier: 1, name: 'Delulu', gen: 'Gen Z', desc: 'Delusional, usually about a crush or unrealistic expectations' },
+  'vibe':        { emoji: '\u{1F30A}', tier: 1, name: 'Vibe', gen: 'Millennial+', desc: 'A mood, energy, or atmosphere. "Vibe check" tests the energy' },
+  'npc':         { emoji: '\u{1F916}', tier: 1, name: 'NPC', gen: 'Gen Z', desc: 'Someone who acts like a non-player character — robotic, no original thoughts' },
+  'ick':         { emoji: '\u{1F922}', tier: 1, name: 'Ick', gen: 'Gen Z', desc: 'A sudden feeling of disgust toward someone you were attracted to' },
+  'ratio':       { emoji: '\u{1F4C9}', tier: 1, name: 'Ratio', gen: 'Gen Z', desc: 'When a reply gets more likes than the original post, a public L' },
+  'brainrot':    { emoji: '\u{1F9E0}', tier: 1, name: 'Brainrot', gen: 'Gen Alpha', desc: 'When your brain is fried from too much internet and meme culture' },
+  'aura':        { emoji: '\u2728',    tier: 1, name: 'Aura', gen: 'Gen Alpha', desc: 'Your personal energy or presence; can be gained or lost based on actions' },
 
   // Tier 2 (34 words)
-  'alpha':              { emoji: '\u{1F981}', tier: 2, name: 'Alpha' },
-  'catfish':            { emoji: '\u{1F41F}', tier: 2, name: 'Catfish' },
-  'main-character':     { emoji: '\u{1F3AC}', tier: 2, name: 'Main Character' },
-  'bot':                { emoji: '\u{1F4BB}', tier: 2, name: 'Bot' },
-  'toilet':             { emoji: '\u{1FAA0}', tier: 2, name: 'Toilet' },
-  'immaculate':         { emoji: '\u{1F468}\u200D\u{1F373}', tier: 2, name: 'Immaculate' },
-  'snake':              { emoji: '\u{1F40D}', tier: 2, name: 'Snake' },
-  'red-flag':           { emoji: '\u{1F6A9}', tier: 2, name: 'Red Flag' },
-  'unspoken-rizz':      { emoji: '\u{1F910}', tier: 2, name: 'Unspoken Rizz' },
-  'cooked':             { emoji: '\u{1F373}', tier: 2, name: 'Cooked' },
-  'copium':             { emoji: '\u{1F48A}', tier: 2, name: 'Copium' },
-  'looksmaxxing':       { emoji: '\u{1F4AA}', tier: 2, name: 'Looksmaxxing' },
-  'aura-points':        { emoji: '\u{1F48E}', tier: 2, name: 'Aura Points' },
-  'ate':                { emoji: '\u{1F37D}\uFE0F', tier: 2, name: 'Ate' },
-  'finesse':            { emoji: '\u{1F3A9}', tier: 2, name: 'Finesse' },
-  'chronically-online': { emoji: '\u{1F4F1}', tier: 2, name: 'Chronically Online' },
-  'glitch':             { emoji: '\u26A1',    tier: 2, name: 'Glitch' },
-  'beige-flag':         { emoji: '\u{1F3F3}\uFE0F', tier: 2, name: 'Beige Flag' },
-  'clout':              { emoji: '\u{1F451}', tier: 2, name: 'Clout' },
-  'dub':                { emoji: '\u{1F3C6}', tier: 2, name: 'Dub' },
-  'ohio':               { emoji: '\u{1F33D}', tier: 2, name: 'Ohio' },
-  'trust-issues':       { emoji: '\u{1F925}', tier: 2, name: 'Trust Issues' },
-  'jawline':            { emoji: '\u{1F48E}', tier: 2, name: 'Jawline' },
-  'era':                { emoji: '\u{1F300}', tier: 2, name: 'Era' },
-  'andrew-tate':        { emoji: '\u{1F576}\uFE0F', tier: 2, name: 'Andrew Tate' },
-  'fact-check':         { emoji: '\u{1F4CB}', tier: 2, name: 'Fact Check' },
-  'ate-and-left':       { emoji: '\u{1F6AA}', tier: 3, name: 'Ate and Left' },
-  'lone-wolf':          { emoji: '\u{1F43A}', tier: 2, name: 'Lone Wolf' },
-  'gaslight':           { emoji: '\u{1F4A1}', tier: 2, name: 'Gaslight' },
-  'clutch':             { emoji: '\u{1F3AF}', tier: 2, name: 'Clutch' },
-  'it-girl':            { emoji: '\u{1F478}', tier: 2, name: 'It Girl' },
-  'down-bad':           { emoji: '\u{1F4C9}', tier: 2, name: 'Down Bad' },
-  'zombie':             { emoji: '\u{1F9DF}', tier: 2, name: 'Zombie' },
-  'fake':               { emoji: '\u{1F3AD}', tier: 2, name: 'Fake' },
-  'robbery':            { emoji: '\u{1F4B0}', tier: 2, name: 'Robbery' },
+  'alpha':              { emoji: '\u{1F981}', tier: 2, name: 'Alpha', gen: 'Gen Z', desc: 'A dominant, confident leader type in social hierarchies' },
+  'catfish':            { emoji: '\u{1F41F}', tier: 2, name: 'Catfish', gen: 'Millennial+', desc: 'Pretending to be someone else online, especially with fake photos' },
+  'main-character':     { emoji: '\u{1F3AC}', tier: 2, name: 'Main Character', gen: 'Gen Z', desc: 'Living like the protagonist of a movie; main character energy' },
+  'bot':                { emoji: '\u{1F4BB}', tier: 2, name: 'Bot', gen: 'Gen Z', desc: 'Someone acting robotic or brainless, or an actual automated account' },
+  'toilet':             { emoji: '\u{1FAA0}', tier: 2, name: 'Toilet', gen: 'Gen Alpha', desc: 'Referencing the Skibidi Toilet universe; absurdist humor' },
+  'immaculate':         { emoji: '\u{1F468}\u200D\u{1F373}', tier: 2, name: 'Immaculate', gen: 'Gen Z', desc: 'Absolutely perfect, flawless execution' },
+  'snake':              { emoji: '\u{1F40D}', tier: 2, name: 'Snake', gen: 'Millennial+', desc: 'A backstabber or someone who betrays trust behind your back' },
+  'red-flag':           { emoji: '\u{1F6A9}', tier: 2, name: 'Red Flag', gen: 'Gen Z', desc: 'A warning sign in a person or relationship' },
+  'unspoken-rizz':      { emoji: '\u{1F910}', tier: 2, name: 'Unspoken Rizz', gen: 'Gen Z', desc: 'Natural charm without even trying; effortless attraction' },
+  'cooked':             { emoji: '\u{1F373}', tier: 2, name: 'Cooked', gen: 'Gen Z', desc: 'Done for, finished, in big trouble with no way out' },
+  'copium':             { emoji: '\u{1F48A}', tier: 2, name: 'Copium', gen: 'Internet', desc: 'A fictional drug you take to cope with an L; from Twitch/gaming culture' },
+  'looksmaxxing':       { emoji: '\u{1F4AA}', tier: 2, name: 'Looksmaxxing', gen: 'Gen Z', desc: 'Maximizing your physical appearance through grooming, fitness, skincare' },
+  'aura-points':        { emoji: '\u{1F48E}', tier: 2, name: 'Aura Points', gen: 'Gen Alpha', desc: 'Imaginary score tracking how cool or uncool your actions are' },
+  'ate':                { emoji: '\u{1F37D}\uFE0F', tier: 2, name: 'Ate', gen: 'Gen Z', desc: 'Absolutely killed it; dominated a performance or look' },
+  'finesse':            { emoji: '\u{1F3A9}', tier: 2, name: 'Finesse', gen: 'Gen Z', desc: 'To smoothly manipulate a situation to your advantage' },
+  'chronically-online': { emoji: '\u{1F4F1}', tier: 2, name: 'Chronically Online', gen: 'Gen Z', desc: 'Someone so terminally online their worldview is shaped entirely by the internet' },
+  'glitch':             { emoji: '\u26A1',    tier: 2, name: 'Glitch', gen: 'Gen Alpha', desc: 'Something unexpected or wrong, like a bug in reality' },
+  'beige-flag':         { emoji: '\u{1F3F3}\uFE0F', tier: 2, name: 'Beige Flag', gen: 'Gen Z', desc: 'Not a dealbreaker but a weird quirk that makes you pause' },
+  'clout':              { emoji: '\u{1F451}', tier: 2, name: 'Clout', gen: 'Gen Z', desc: 'Social influence or fame, especially on social media' },
+  'dub':                { emoji: '\u{1F3C6}', tier: 2, name: 'Dub', gen: 'Gen Z', desc: 'A win; the opposite of an L' },
+  'ohio':               { emoji: '\u{1F33D}', tier: 2, name: 'Ohio', gen: 'Gen Alpha', desc: 'A meme state where weird, cursed things happen. "Only in Ohio"' },
+  'trust-issues':       { emoji: '\u{1F925}', tier: 2, name: 'Trust Issues', gen: 'Gen Z', desc: 'When past betrayals make it hard to believe anyone' },
+  'jawline':            { emoji: '\u{1F48E}', tier: 2, name: 'Jawline', gen: 'Gen Alpha', desc: 'A sharp, defined jaw from mewing; a looksmaxxing flex' },
+  'era':                { emoji: '\u{1F300}', tier: 2, name: 'Era', gen: 'Gen Z', desc: 'A personal phase or chapter. "I\'m in my villain era"' },
+  'andrew-tate':        { emoji: '\u{1F576}\uFE0F', tier: 2, name: 'Andrew Tate', gen: 'Gen Z', desc: 'Controversial internet figure associated with sigma/alpha culture' },
+  'fact-check':         { emoji: '\u{1F4CB}', tier: 2, name: 'Fact Check', gen: 'Gen Z', desc: 'Calling out misinformation or verifying claims in real time' },
+  'ate-and-left':       { emoji: '\u{1F6AA}', tier: 3, name: 'Ate and Left', gen: 'Gen Z', desc: 'Did something amazing and bounced without waiting for applause' },
+  'lone-wolf':          { emoji: '\u{1F43A}', tier: 2, name: 'Lone Wolf', gen: 'Gen Z', desc: 'A sigma who thrives alone, no squad needed' },
+  'gaslight':           { emoji: '\u{1F4A1}', tier: 2, name: 'Gaslight', gen: 'Millennial+', desc: 'Manipulating someone into questioning their own reality' },
+  'clutch':             { emoji: '\u{1F3AF}', tier: 2, name: 'Clutch', gen: 'Gen Z', desc: 'Coming through at the last possible moment under pressure' },
+  'it-girl':            { emoji: '\u{1F478}', tier: 2, name: 'It Girl', gen: 'Gen Z', desc: 'The girl everyone wants to be; effortlessly trendy and admired' },
+  'down-bad':           { emoji: '\u{1F4C9}', tier: 2, name: 'Down Bad', gen: 'Gen Z', desc: 'Desperately attracted to someone or in a pathetic emotional state' },
+  'zombie':             { emoji: '\u{1F9DF}', tier: 2, name: 'Zombie', gen: 'Gen Alpha', desc: 'Brain-dead scrolling state; a brainrot NPC fusion' },
+  'fake':               { emoji: '\u{1F3AD}', tier: 2, name: 'Fake', gen: 'Millennial+', desc: 'Someone being two-faced or inauthentic' },
+  'robbery':            { emoji: '\u{1F4B0}', tier: 2, name: 'Robbery', gen: 'Gen Z', desc: 'When someone takes a massive L unfairly, like getting taxed hard' },
 
   // Tier 3 (16 words)
-  'giga-chad':          { emoji: '\u{1F5FF}', tier: 3, name: 'Giga Chad' },
-  'content-creator':    { emoji: '\u{1F4F8}', tier: 3, name: 'Content Creator' },
-  'exposed':            { emoji: '\u{1F4E2}', tier: 3, name: 'Exposed' },
-  'glow-up':            { emoji: '\u{1F98B}', tier: 3, name: 'Glow Up' },
-  'situationship':      { emoji: '\u{1F494}', tier: 3, name: 'Situationship' },
-  'influencer':         { emoji: '\u{1F31F}', tier: 3, name: 'Influencer' },
-  'skibidi-toilet':     { emoji: '\u{1F6BD}\u2728', tier: 3, name: 'Skibidi Toilet' },
-  'no-notes':           { emoji: '\u{1F4AF}', tier: 3, name: 'No Notes' },
-  'ipad-kid':           { emoji: '\u{1F9D2}', tier: 3, name: 'iPad Kid' },
-  'its-giving':         { emoji: '\u{1F481}', tier: 3, name: "It's Giving" },
-  'gaslighting':        { emoji: '\u{1F525}\u{1FA9E}', tier: 3, name: 'Gaslighting' },
-  'drip':               { emoji: '\u{1F4A7}', tier: 3, name: 'Drip' },
-  'tiktok':             { emoji: '\u{1F3B5}', tier: 3, name: 'TikTok' },
-  'ghosting':           { emoji: '\u{1F47B}', tier: 3, name: 'Ghosting' },
-  'comeback':           { emoji: '\u{1F504}', tier: 3, name: 'Comeback' },
-  'ratiod':             { emoji: '\u{1F4CA}', tier: 3, name: "Ratio'd" },
+  'giga-chad':          { emoji: '\u{1F5FF}', tier: 3, name: 'Giga Chad', gen: 'Internet', desc: 'The ultimate alpha male; peak physical and mental dominance (meme origin)' },
+  'content-creator':    { emoji: '\u{1F4F8}', tier: 3, name: 'Content Creator', gen: 'Gen Z', desc: 'Someone who makes videos, posts, or streams for a living' },
+  'exposed':            { emoji: '\u{1F4E2}', tier: 3, name: 'Exposed', gen: 'Gen Z', desc: 'When someone\'s lies or secrets are publicly revealed' },
+  'glow-up':            { emoji: '\u{1F98B}', tier: 3, name: 'Glow Up', gen: 'Gen Z', desc: 'A major transformation for the better, physically or mentally' },
+  'situationship':      { emoji: '\u{1F494}', tier: 3, name: 'Situationship', gen: 'Gen Z', desc: 'A romantic connection that\'s more than friends but not officially dating' },
+  'influencer':         { emoji: '\u{1F31F}', tier: 3, name: 'Influencer', gen: 'Millennial+', desc: 'Someone with a large online following who shapes trends and opinions' },
+  'skibidi-toilet':     { emoji: '\u{1F6BD}\u2728', tier: 3, name: 'Skibidi Toilet', gen: 'Gen Alpha', desc: 'The iconic character from the viral YouTube series; peak brainrot content' },
+  'no-notes':           { emoji: '\u{1F4AF}', tier: 3, name: 'No Notes', gen: 'Gen Z', desc: 'Absolutely perfect, nothing to criticize' },
+  'ipad-kid':           { emoji: '\u{1F9D2}', tier: 3, name: 'iPad Kid', gen: 'Gen Alpha', desc: 'A child raised on tablets; the stereotypical Gen Alpha upbringing' },
+  'its-giving':         { emoji: '\u{1F481}', tier: 3, name: "It's Giving", gen: 'Gen Z', desc: 'Describes the vibe something radiates. "It\'s giving main character"' },
+  'gaslighting':        { emoji: '\u{1F525}\u{1FA9E}', tier: 3, name: 'Gaslighting', gen: 'Millennial+', desc: 'Systematically making someone doubt their own perception of reality' },
+  'drip':               { emoji: '\u{1F4A7}', tier: 3, name: 'Drip', gen: 'Gen Z', desc: 'Extremely stylish outfit or fashion sense' },
+  'tiktok':             { emoji: '\u{1F3B5}', tier: 3, name: 'TikTok', gen: 'Gen Z', desc: 'The app that launched a thousand trends and brainrot' },
+  'ghosting':           { emoji: '\u{1F47B}', tier: 3, name: 'Ghosting', gen: 'Millennial+', desc: 'Suddenly cutting off all communication with someone without explanation' },
+  'comeback':           { emoji: '\u{1F504}', tier: 3, name: 'Comeback', gen: 'Gen Z', desc: 'A fire response to being ratio\'d; a redemption moment' },
+  'ratiod':             { emoji: '\u{1F4CA}', tier: 3, name: "Ratio'd", gen: 'Gen Z', desc: 'When your post gets ratio\'d — the reply beat you in likes' },
 
   // Tier 3 cross-tier (T2/T3 + T1 = new T3)
-  'pick-me':            { emoji: '\u{1F64B}', tier: 3, name: 'Pick Me' },
-  'body-count':         { emoji: '\u{1F480}\u{1F4CA}', tier: 3, name: 'Body Count' },
-  'demon-time':         { emoji: '\u{1F608}', tier: 3, name: 'Demon Time' },
-  'living-rent-free':   { emoji: '\u{1F3E0}', tier: 3, name: 'Living Rent Free' },
-  'understood-the-assignment': { emoji: '\u{1F4DD}', tier: 3, name: 'Understood the Assignment' },
-  'snatched':           { emoji: '\u{1F48E}\u{1F525}', tier: 3, name: 'Snatched' },
-  'block':              { emoji: '\u{1F6AB}', tier: 3, name: 'Block' },
-  'ceo':                { emoji: '\u{1F4BC}', tier: 3, name: 'CEO' },
-  'florida-man':        { emoji: '\u{1F40A}', tier: 3, name: 'Florida Man' },
-  'simp':               { emoji: '\u{1F97A}', tier: 3, name: 'Simp' },
-  'built-different':    { emoji: '\u{1F3D7}\uFE0F', tier: 3, name: 'Built Different' },
-  'baddie':             { emoji: '\u{1F485}', tier: 3, name: 'Baddie' },
+  'pick-me':            { emoji: '\u{1F64B}', tier: 3, name: 'Pick Me', gen: 'Gen Z', desc: 'Someone who seeks validation by putting others down or being "not like other girls"' },
+  'body-count':         { emoji: '\u{1F480}\u{1F4CA}', tier: 3, name: 'Body Count', gen: 'Gen Z', desc: 'Number of past romantic partners; a spicy topic of debate' },
+  'demon-time':         { emoji: '\u{1F608}', tier: 3, name: 'Demon Time', gen: 'Gen Z', desc: 'Late-night hours when people make chaotic or unhinged decisions' },
+  'living-rent-free':   { emoji: '\u{1F3E0}', tier: 3, name: 'Living Rent Free', gen: 'Gen Z', desc: 'When someone or something occupies your thoughts constantly' },
+  'understood-the-assignment': { emoji: '\u{1F4DD}', tier: 3, name: 'Understood the Assignment', gen: 'Gen Z', desc: 'Nailed exactly what was expected; delivered perfectly' },
+  'snatched':           { emoji: '\u{1F48E}\u{1F525}', tier: 3, name: 'Snatched', gen: 'Gen Z', desc: 'Looking incredibly good; outfit, body, or look is on point' },
+  'block':              { emoji: '\u{1F6AB}', tier: 3, name: 'Block', gen: 'Gen Z', desc: 'Cutting someone off digitally; the modern way to end a chapter' },
+  'ceo':                { emoji: '\u{1F4BC}', tier: 3, name: 'CEO', gen: 'Gen Z', desc: '"CEO of X" means you\'re the absolute best at something' },
+  'florida-man':        { emoji: '\u{1F40A}', tier: 3, name: 'Florida Man', gen: 'Internet', desc: 'The personification of chaotic, unhinged behavior — "only in Ohio" energy' },
+  'simp':               { emoji: '\u{1F97A}', tier: 3, name: 'Simp', gen: 'Gen Z', desc: 'Someone who does way too much for a person who doesn\'t reciprocate' },
+  'built-different':    { emoji: '\u{1F3D7}\uFE0F', tier: 3, name: 'Built Different', gen: 'Gen Z', desc: 'Not like everyone else; uniquely talented or resilient' },
+  'baddie':             { emoji: '\u{1F485}', tier: 3, name: 'Baddie', gen: 'Gen Z', desc: 'A confident, attractive woman who knows her worth' },
 
   // Tier 4 cross-tier (T3 + T1 = new T4)
-  'delulu-is-the-solulu': { emoji: '\u{1F52E}', tier: 4, name: 'Delulu is the Solulu' },
-  'rent-free-king':       { emoji: '\u{1F3E0}\u{1F451}', tier: 4, name: 'Rent Free King' },
-  'main-character-syndrome': { emoji: '\u{1F3AC}\u{1F92F}', tier: 4, name: 'Main Character Syndrome' },
+  'delulu-is-the-solulu': { emoji: '\u{1F52E}', tier: 4, name: 'Delulu is the Solulu', gen: 'Gen Z', desc: 'Being delusional is the solution — manifest your dreams by believing hard enough' },
+  'rent-free-king':       { emoji: '\u{1F3E0}\u{1F451}', tier: 4, name: 'Rent Free King', gen: 'Gen Z', desc: 'The ultimate person who lives in everyone\'s head without even trying' },
+  'main-character-syndrome': { emoji: '\u{1F3AC}\u{1F92F}', tier: 4, name: 'Main Character Syndrome', gen: 'Gen Z', desc: 'When main character energy goes too far and you think the world revolves around you' },
 
   // Tier 4 (6 + 3 = 9 words)
-  'final-form':   { emoji: '\u2694\uFE0F', tier: 4, name: 'Final Form' },
-  'mr-beast':     { emoji: '\u{1F981}\u{1F451}', tier: 4, name: 'MrBeast' },
-  'cancelled':    { emoji: '\u{1F6AB}', tier: 4, name: 'Cancelled' },
-  'toxic':        { emoji: '\u2620\uFE0F', tier: 4, name: 'Toxic' },
-  'gen-alpha':    { emoji: '\u{1F476}\u{1F4F1}', tier: 4, name: 'Gen Alpha' },
-  'iconic':       { emoji: '\u{1F3DB}\uFE0F', tier: 4, name: 'Iconic' },
-  'mogul':        { emoji: '\u{1F3F0}', tier: 4, name: 'Mogul' },
-  'unhinged':     { emoji: '\u{1F92A}', tier: 4, name: 'Unhinged' },
-  'queen':        { emoji: '\u{1F451}', tier: 4, name: 'Queen' },
+  'final-form':   { emoji: '\u2694\uFE0F', tier: 4, name: 'Final Form', gen: 'Internet', desc: 'Someone at their peak evolution; a Dragon Ball Z reference for max power' },
+  'mr-beast':     { emoji: '\u{1F981}\u{1F451}', tier: 4, name: 'MrBeast', gen: 'Gen Z', desc: 'The biggest YouTuber alive; the mogul of content creation' },
+  'cancelled':    { emoji: '\u{1F6AB}', tier: 4, name: 'Cancelled', gen: 'Gen Z', desc: 'Publicly called out and boycotted for problematic behavior' },
+  'toxic':        { emoji: '\u2620\uFE0F', tier: 4, name: 'Toxic', gen: 'Millennial+', desc: 'Harmful behavior in relationships or social dynamics' },
+  'gen-alpha':    { emoji: '\u{1F476}\u{1F4F1}', tier: 4, name: 'Gen Alpha', gen: 'Gen Alpha', desc: 'The generation born after 2010; iPad kids, Skibidi, and pure brainrot' },
+  'iconic':       { emoji: '\u{1F3DB}\uFE0F', tier: 4, name: 'Iconic', gen: 'Gen Z', desc: 'So legendary it becomes a cultural reference point' },
+  'mogul':        { emoji: '\u{1F3F0}', tier: 4, name: 'Mogul', gen: 'Gen Z', desc: 'A powerful person who dominates their field; empire-builder energy' },
+  'unhinged':     { emoji: '\u{1F92A}', tier: 4, name: 'Unhinged', gen: 'Gen Z', desc: 'Acting completely wild with zero filter or self-awareness' },
+  'queen':        { emoji: '\u{1F451}', tier: 4, name: 'Queen', gen: 'Gen Z', desc: 'A woman who absolutely runs the show; ultimate respect' },
 
   // Tier 5 (5 + 1 = 6 words)
-  'goat':           { emoji: '\u{1F410}', tier: 5, name: 'GOAT' },
-  'redemption-arc': { emoji: '\u{1F305}', tier: 5, name: 'Redemption Arc' },
-  'brainrot-king':  { emoji: '\u{1F451}\u{1F9E0}', tier: 5, name: 'Brainrot King' },
-  'legend':         { emoji: '\u2B50',    tier: 5, name: 'Legend' },
-  'touch-grass':    { emoji: '\u{1F331}', tier: 5, name: 'Touch Grass' },
-  'power-couple':   { emoji: '\u{1F4AA}\u{1F451}', tier: 5, name: 'Power Couple' }
+  'goat':           { emoji: '\u{1F410}', tier: 5, name: 'GOAT', gen: 'Millennial+', desc: 'Greatest Of All Time — the undisputed best in any category' },
+  'redemption-arc': { emoji: '\u{1F305}', tier: 5, name: 'Redemption Arc', gen: 'Gen Z', desc: 'When someone makes a legendary comeback from being cancelled or hated' },
+  'brainrot-king':  { emoji: '\u{1F451}\u{1F9E0}', tier: 5, name: 'Brainrot King', gen: 'Gen Alpha', desc: 'The ultimate ruler of internet-poisoned culture; peak chronically online' },
+  'legend':         { emoji: '\u2B50',    tier: 5, name: 'Legend', gen: 'Millennial+', desc: 'Someone so iconic their legacy transcends generations' },
+  'touch-grass':    { emoji: '\u{1F331}', tier: 5, name: 'Touch Grass', gen: 'Gen Z', desc: 'Go outside and reconnect with reality; you\'ve been online too long' },
+  'power-couple':   { emoji: '\u{1F4AA}\u{1F451}', tier: 5, name: 'Power Couple', gen: 'Millennial+', desc: 'Two dominant people together who amplify each other\'s greatness' }
 };
 
 var COMBOS = [
@@ -3992,6 +4064,83 @@ function getCanvasDropTarget(clientX, clientY, excludeEl) {
   return null;
 }
 
+// ---------- HOVER TOOLTIP ----------
+
+var tooltipEl = null;
+var tooltipTimer = null;
+var TOOLTIP_DELAY = 2000; // 2 seconds before showing
+
+function initTooltip() {
+  tooltipEl = document.getElementById('word-tooltip');
+
+  // Use event delegation on the whole document
+  document.addEventListener('mouseenter', function(e) {
+    var tile = e.target.closest('.tile[data-word], .mobile-word[data-word]');
+    if (!tile) return;
+    var wordId = tile.getAttribute('data-word');
+    var word = WORDS[wordId];
+    if (!word || !word.desc) return;
+
+    // Only show for discovered words (not ??? tiles)
+    if (tile.classList.contains('undiscovered')) return;
+
+    clearTimeout(tooltipTimer);
+    tooltipTimer = setTimeout(function() {
+      showTooltip(tile, word);
+    }, TOOLTIP_DELAY);
+  }, true);
+
+  document.addEventListener('mouseleave', function(e) {
+    var tile = e.target.closest('.tile[data-word], .mobile-word[data-word]');
+    if (!tile) return;
+    hideTooltip();
+  }, true);
+
+  // Also hide on scroll or click
+  document.addEventListener('scroll', hideTooltip, true);
+  document.addEventListener('mousedown', hideTooltip, true);
+}
+
+function showTooltip(tile, word) {
+  if (!tooltipEl) return;
+
+  document.getElementById('tooltip-name').textContent = word.emoji + ' ' + word.name;
+
+  var genEl = document.getElementById('tooltip-gen');
+  genEl.textContent = word.gen;
+  genEl.setAttribute('data-gen', word.gen);
+
+  document.getElementById('tooltip-desc').textContent = word.desc;
+
+  // Position near the tile
+  var rect = tile.getBoundingClientRect();
+  var tipW = 240;
+  var tipH = 120; // estimate
+
+  var left = rect.left + rect.width / 2 - tipW / 2;
+  var top = rect.bottom + 8;
+
+  // Keep on screen
+  if (left < 8) left = 8;
+  if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+
+  // If below viewport, show above tile
+  if (top + tipH > window.innerHeight - 8) {
+    top = rect.top - tipH - 8;
+  }
+
+  tooltipEl.style.left = left + 'px';
+  tooltipEl.style.top = top + 'px';
+  tooltipEl.classList.add('visible');
+}
+
+function hideTooltip() {
+  clearTimeout(tooltipTimer);
+  if (tooltipEl) {
+    tooltipEl.classList.remove('visible');
+  }
+}
+
 // ---------- BOOT SEQUENCE ----------
 
 function init() {
@@ -3999,6 +4148,7 @@ function init() {
   initModals();
   initInteraction();
   initDesktopMergeBar();
+  initTooltip();
   initCanvasDrag();
   initSidebar();
   initHints();
