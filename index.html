@@ -2760,7 +2760,8 @@ function initInteraction() {
 
     var tileEl = e.target.closest('.tile');
     if (!tileEl) {
-      clearDesktopSelection();
+      // Don't deselect on empty space if a word is already selected/locked
+      if (!desktopSelectedA) clearDesktopSelection();
       return;
     }
 
@@ -3960,8 +3961,8 @@ function initCanvasDrag() {
     if (settings.view !== 'canvas') return;
     var tile = e.target.closest('.tile');
     if (!tile) {
-      // Clicked empty canvas space — deselect
-      if (!e.target.closest('.desktop-merge-bar')) {
+      // Don't deselect on empty space if a word is already selected/locked
+      if (!desktopSelectedA && !e.target.closest('.desktop-merge-bar')) {
         clearDesktopSelection();
       }
       return;
